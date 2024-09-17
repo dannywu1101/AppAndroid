@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/ui.theme/Color.kt
+
 package com.example.proyectobufetec.ui.theme
 
 import androidx.compose.ui.graphics.Color

@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/MainActivity.kt
+
 package com.example.proyectobufetec
 
 import android.os.Bundle
@@ -7,32 +9,29 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.proyectobufetec.ui.theme.ProyectoBufetecTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyectobufetec.navigation.AppNavHost
+import com.example.proyectobufetec.service.UserService
+import com.example.proyectobufetec.ui.theme.NavTemplateTheme
+import com.example.proyectobufetec.viewmodel.UserViewModel
+
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ProyectoBufetecTheme {
+            NavTemplateTheme {
+                val userViewModel = UserViewModel(UserService.instance)
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ProyectoAndroid(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    AppNavHost(userViewModel, Modifier.padding(innerPadding))
                 }
             }
         }
     }
 }
 
-@Composable
-fun ProyectoAndroid(modifier: Modifier = Modifier) {
-    //TODO: Add your UI code here
-    // Prueba Pull Main
-    // Prueba marcelo push y pull
-    // prueba push mau
-}
 
 

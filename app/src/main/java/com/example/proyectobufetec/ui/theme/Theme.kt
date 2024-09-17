@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/ui.theme/Theme.kt
+
 package com.example.proyectobufetec.ui.theme
 
 import android.app.Activity
@@ -34,7 +36,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun ProyectoBufetecTheme(
+fun NavTemplateTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,

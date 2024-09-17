@@ -51,6 +51,17 @@ android {
 
 dependencies {
 
+    //las agregue yo
+    implementation(libs.androidx.navigation.compose)
+
+    implementation (libs.retrofit)
+    implementation (libs.logging.interceptor)
+    implementation (libs.converter.gson)
+
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    
+    // ya estaban agregadas
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

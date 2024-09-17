@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/ui.theme/Type.kt
+
 package com.example.proyectobufetec.ui.theme
 
 import androidx.compose.material3.Typography
