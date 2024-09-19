@@ -3,6 +3,7 @@
 package com.example.proyectobufetec.navigation
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerValue
@@ -24,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.proyectobufetec.components.NavigationDrawer
 
 import com.example.proyectobufetec.screens.BibliotecaScreen
+import com.example.proyectobufetec.screens.ChatBotScreen
 import com.example.proyectobufetec.screens.HomeScreen
 import com.example.proyectobufetec.screens.LoginScreen
 import com.example.proyectobufetec.screens.RegisterScreen
@@ -80,6 +82,40 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
                 )
             }
         }
+        composable("chatbot") {
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    ModalDrawerSheet {
+                        NavigationDrawer(navController, appViewModel) { destination ->
+                            scope.launch { drawerState.close() }
+                            navController.navigate(destination)
+                        }
+                    }
+                }
+            ) {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("ChatBot") },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    scope.launch { drawerState.open() }
+                                }) {
+                                    Icon(Icons.Default.Menu, contentDescription = "Menu")
+                                }
+                            }
+                        )
+                    },
+                    content = { paddingValues ->
+                        // Aquí pasamos los padding que vienen del Scaffold
+                        ChatBotScreen(navController, appViewModel, modifier = Modifier.padding(paddingValues))
+                    }
+                )
+            }
+        }
+
+
         composable("biblioteca") {
             ModalNavigationDrawer(
                 drawerState = drawerState,

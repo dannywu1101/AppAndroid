@@ -59,7 +59,8 @@ dependencies {
     implementation (libs.converter.gson)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-
+    //poty
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     
     // ya estaban agregadas
     implementation(libs.androidx.core.ktx)
