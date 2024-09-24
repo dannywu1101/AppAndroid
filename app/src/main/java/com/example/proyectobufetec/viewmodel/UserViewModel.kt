@@ -20,7 +20,7 @@ import java.lang.Exception
 
 class UserViewModel(private val userService: UserService) : ViewModel() {
 
-    var email by mutableStateOf("Jorge")
+    var email by mutableStateOf("Prueba")
     var password by mutableStateOf("1234")
 
     var isUserLogged by mutableStateOf(false)

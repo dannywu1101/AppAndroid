@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/screens/ChatBotScreen.kt
+
 package com.example.proyectobufetec.screens
 import android.util.Log
 import androidx.compose.foundation.background

@@ -43,7 +43,8 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
     // Crear un solo NavHost para manejar todas las rutas
     NavHost(
         navController = navController,
-        startDestination = if (appViewModel.isUserLogged) "home" else "login" // esta chido esto
+        startDestination = "chatbot"
+        //startDestination = if (appViewModel.isUserLogged) "home" else "login"
     ) {
         composable("login") {
             LoginScreen(navController, appViewModel)

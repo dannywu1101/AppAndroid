@@ -15,7 +15,6 @@ import com.example.proyectobufetec.service.UserService
 import com.example.proyectobufetec.ui.theme.NavTemplateTheme
 import com.example.proyectobufetec.viewmodel.UserViewModel
 
-
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

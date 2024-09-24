@@ -51,7 +51,7 @@ android {
 
 dependencies {
 
-    //las agregue yo
+    //danny
     implementation(libs.androidx.navigation.compose)
 
     implementation (libs.retrofit)
@@ -59,9 +59,14 @@ dependencies {
     implementation (libs.converter.gson)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+
     //poty
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    
+    implementation(libs.okhttp)
+
+    // barra de busqueda?
+    implementation(libs.material3)
+
+
     // ya estaban agregadas
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
