@@ -28,6 +28,7 @@ import com.example.proyectobufetec.screens.BibliotecaScreen
 import com.example.proyectobufetec.screens.ChatBotScreen
 import com.example.proyectobufetec.screens.HomeScreen
 import com.example.proyectobufetec.screens.LoginScreen
+import com.example.proyectobufetec.screens.ProfileScreen
 import com.example.proyectobufetec.screens.RegisterScreen
 import com.example.proyectobufetec.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
@@ -49,9 +50,11 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
         composable("login") {
             LoginScreen(navController, appViewModel)
         }
+
         composable("register") {
             RegisterScreen(navController)
         }
+
         composable("home") {
             ModalNavigationDrawer(
                 drawerState = drawerState,
@@ -83,6 +86,7 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
                 )
             }
         }
+
         composable("chatbot") {
             ModalNavigationDrawer(
                 drawerState = drawerState,
@@ -148,5 +152,38 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
                 )
             }
         }
+
+        composable("profile") {
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    ModalDrawerSheet {
+                        NavigationDrawer(navController,appViewModel) { destination ->
+                            scope.launch { drawerState.close() }
+                            navController.navigate(destination)
+                        }
+                    }
+                }
+            ) {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("Perfil") },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    scope.launch { drawerState.open() }
+                                }) {
+                                    Icon(Icons.Default.Menu, contentDescription = "Menu")
+                                }
+                            }
+                        )
+                    },
+                    content = { padding ->
+                        ProfileScreen(navController, appViewModel)
+                    }
+                )
+            }
+        }
+
     }
 }
