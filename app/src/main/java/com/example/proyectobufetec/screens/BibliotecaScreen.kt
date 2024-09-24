@@ -31,9 +31,15 @@ fun BibliotecaScreen(navController: NavController, appViewModel: UserViewModel) 
         Triple("Documentación de Compose", "https://developer.android.com/jetpack/compose/documentation", "Guía completa de Jetpack Compose para Android."),
         Triple("GitHub", "https://github.com", "Plataforma para control de versiones y colaboración en código."),
         Triple("Google", "https://www.google.com", "El motor de búsqueda más utilizado en el mundo."),
-        Triple("Divorcios", "https://mexico.justia.com/derecho-de-familia/divorcio/", "Liga de informacion para gente que necesito de ayuda")
+        Triple("Divorcios", "https://mexico.justia.com/derecho-de-familia/divorcio/", "Liga de información para personas que necesitan ayuda")
         // Agrega más títulos, links y descripciones aquí
     )
+
+    // Filtrar los enlaces en función de la consulta de búsqueda
+    val filteredLinks = links.filter {
+        it.first.contains(searchQuery, ignoreCase = true) ||  // Filtrar por título
+                it.third.contains(searchQuery, ignoreCase = true)     // Filtrar por descripción
+    }
 
     Spacer(modifier = Modifier.height(40.dp))
 
@@ -54,9 +60,9 @@ fun BibliotecaScreen(navController: NavController, appViewModel: UserViewModel) 
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Lista de títulos y descripciones
+        // Lista de títulos y descripciones filtrada
         LazyColumn {
-            items(links) { (title, link, description) ->
+            items(filteredLinks) { (title, link, description) ->
                 Column(modifier = Modifier.padding(8.dp)) {
                     // Título con estilo de link
                     Text(
