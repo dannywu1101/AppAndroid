@@ -34,6 +34,12 @@ fun NavigationDrawer(navController: NavController, appViewModel: UserViewModel, 
         }
 
         NavigationDrawerItem(
+            label = { Text("ChatBot") },
+            selected = currentDestination == "chatbot",
+            onClick = { onNavigate("chatbot") }
+        )
+
+        NavigationDrawerItem(
             label = { Text("Ruta 3") },
             selected = currentDestination == "Ruta 3",
             onClick = { onNavigate("route3") }
@@ -43,12 +49,6 @@ fun NavigationDrawer(navController: NavController, appViewModel: UserViewModel, 
             label = { Text("Biblioteca") },
             selected = currentDestination == "biblioteca",
             onClick = { onNavigate("biblioteca") }
-        )
-
-        NavigationDrawerItem(
-            label = { Text("ChatBot") },
-            selected = currentDestination == "chatbot",
-            onClick = { onNavigate("chatbot") }
         )
 
         NavigationDrawerItem(
