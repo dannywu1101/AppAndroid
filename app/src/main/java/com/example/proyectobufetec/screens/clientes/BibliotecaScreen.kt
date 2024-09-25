@@ -1,7 +1,6 @@
-// com.example.proyectobufetec/screens/BibliotecaScreen.kt
-
 package com.example.proyectobufetec.screens.clientes
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,7 +18,11 @@ import androidx.navigation.NavController
 import com.example.proyectobufetec.viewmodel.UserViewModel
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.ui.draw.shadow
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.platform.LocalContext
+
+val TecBlue = Color(0xFF0033A0)  // Azul representativo del TEC
 
 @Composable
 fun BibliotecaScreen(navController: NavController, appViewModel: UserViewModel) {
@@ -31,8 +34,11 @@ fun BibliotecaScreen(navController: NavController, appViewModel: UserViewModel) 
         Triple("Documentación de Compose", "https://developer.android.com/jetpack/compose/documentation", "Guía completa de Jetpack Compose para Android."),
         Triple("GitHub", "https://github.com", "Plataforma para control de versiones y colaboración en código."),
         Triple("Google", "https://www.google.com", "El motor de búsqueda más utilizado en el mundo."),
-        Triple("Divorcios", "https://mexico.justia.com/derecho-de-familia/divorcio/", "Liga de información para personas que necesitan ayuda")
-        // Agrega más títulos, links y descripciones aquí
+        Triple("Divorcios", "https://mexico.justia.com/derecho-de-familia/divorcio/", "Liga de información para personas que necesitan ayuda"),
+        Triple("Divorcios", "https://mexico.justia.com/derecho-de-familia/divorcio/", "Liga de información para personas que necesitan ayuda"),
+        Triple("Divorcios", "https://mexico.justia.com/derecho-de-familia/divorcio/", "Liga de información para personas que necesitan ayuda"),
+
+    // Agrega más títulos, links y descripciones aquí
     )
 
     // Filtrar los enlaces en función de la consulta de búsqueda
@@ -63,11 +69,18 @@ fun BibliotecaScreen(navController: NavController, appViewModel: UserViewModel) 
         // Lista de títulos y descripciones filtrada
         LazyColumn {
             items(filteredLinks) { (title, link, description) ->
-                Column(modifier = Modifier.padding(8.dp)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .shadow(elevation = 8.dp, shape = RoundedCornerShape(8.dp)) // Añadir sombra
+                        .background(Color.White, RoundedCornerShape(8.dp)) // Fondo blanco con esquinas redondeadas
+                        .padding(16.dp) // Padding interno
+                ) {
                     // Título con estilo de link
                     Text(
                         text = title,
-                        color = Color.Blue, // Cambiar el color a azul
+                        color = TecBlue, // Cambiar el color a azul
                         fontSize = 18.sp,   // Ajustar tamaño de la fuente
                         fontWeight = FontWeight.Bold, // Hacer el texto más visible
                         textDecoration = TextDecoration.Underline, // Subrayado
