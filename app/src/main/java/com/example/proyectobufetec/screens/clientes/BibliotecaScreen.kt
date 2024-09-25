@@ -1,6 +1,6 @@
 // com.example.proyectobufetec/screens/BibliotecaScreen.kt
 
-package com.example.proyectobufetec.screens
+package com.example.proyectobufetec.screens.clientes
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
