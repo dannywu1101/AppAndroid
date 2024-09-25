@@ -16,7 +16,7 @@ fun InfoAbogadosScreen(navController: NavController, appViewModel: UserViewModel
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(top = 60.dp, start = 16.dp, end = 16.dp)
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
