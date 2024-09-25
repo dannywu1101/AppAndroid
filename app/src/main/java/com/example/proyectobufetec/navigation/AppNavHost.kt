@@ -24,12 +24,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.proyectobufetec.components.NavigationDrawer
-
 import com.example.proyectobufetec.screens.BibliotecaScreen
 import com.example.proyectobufetec.screens.ChatBotScreen
 import com.example.proyectobufetec.screens.HomeScreen
 import com.example.proyectobufetec.screens.LoginScreen
-
 import com.example.proyectobufetec.screens.RegisterScreen
 import com.example.proyectobufetec.viewmodel.UserViewModel
 import kotlinx.coroutines.launch

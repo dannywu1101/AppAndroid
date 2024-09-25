@@ -50,6 +50,7 @@ fun ProfileScreen(navController: NavController, appViewModel: UserViewModel) {
         if (selectedImageUri != null) {
             val context = LocalContext.current
             val inputStream: InputStream? = context.contentResolver.openInputStream(selectedImageUri!!)
+
             bitmap = BitmapFactory.decodeStream(inputStream)
 
             bitmap?.let {
