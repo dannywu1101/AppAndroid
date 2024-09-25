@@ -29,6 +29,7 @@ import com.example.proyectobufetec.screens.clientes.ChatBotScreen
 import com.example.proyectobufetec.screens.HomeScreen
 import com.example.proyectobufetec.screens.LoginScreen
 import com.example.proyectobufetec.screens.RegisterScreen
+import com.example.proyectobufetec.screens.abogado.LegalCasesScreen
 import com.example.proyectobufetec.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
@@ -179,6 +180,38 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
                     },
                     content = { padding ->
                         ProfileScreen(navController, appViewModel)
+                    }
+                )
+            }
+        }
+
+        composable("casos legales") {
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    ModalDrawerSheet {
+                        NavigationDrawer(navController,appViewModel) { destination ->
+                            scope.launch { drawerState.close() }
+                            navController.navigate(destination)
+                        }
+                    }
+                }
+            ) {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("Casos Legales") },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    scope.launch { drawerState.open() }
+                                }) {
+                                    Icon(Icons.Default.Menu, contentDescription = "Menu")
+                                }
+                            }
+                        )
+                    },
+                    content = { padding ->
+                        LegalCasesScreen(navController, appViewModel)
                     }
                 )
             }

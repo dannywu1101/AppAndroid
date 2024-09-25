@@ -40,9 +40,9 @@ fun NavigationDrawer(navController: NavController, appViewModel: UserViewModel, 
         )
 
         NavigationDrawerItem(
-            label = { Text("Ruta 3") },
-            selected = currentDestination == "Ruta 3",
-            onClick = { onNavigate("route3") }
+            label = { Text("Casos Legales") },
+            selected = currentDestination == "Casos Legales",
+            onClick = { onNavigate("casos legales") }
         )
 
         NavigationDrawerItem(
