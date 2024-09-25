@@ -11,12 +11,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.example.proyectobufetec.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
+
+val TecBlue = Color(0xFF0033A0)  // Azul representativo del TEC
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,11 +34,19 @@ fun LegalCasesScreen(navController: NavController, appViewModel: UserViewModel) 
 
     // List of legal cases to display
     val legalCases = listOf(
-        "Folio 1" to "Nombre del Caso 1",
-        "Folio 2" to "Nombre del Caso 2",
-        "Folio 3" to "Nombre del Caso 3",
-        "Folio 4" to "Nombre del Caso 4",
-        "Folio 5" to "Nombre del Caso 5"
+        "1234" to "Ignacio López",
+        "4321" to "Javier García",
+        "3214" to "Cristina Martínez",
+        "3124" to "María Rodríguez",
+        "1243" to "Miguel Sánchez",
+        "2134" to "Alberto Nuñez",
+        "2143" to "Cristián Pérez",
+        "3241" to "Carlos Hernández",
+        "1324" to "Gabriela Gómez",
+        "1342" to "Oscar García",
+        "1423" to "Pablo López",
+        "1432" to "Cristóbal Gutiérrez",
+        "2314" to "Javier Cordova"
     )
 
     // Filtered cases based on search query
@@ -44,12 +58,7 @@ fun LegalCasesScreen(navController: NavController, appViewModel: UserViewModel) 
         scaffoldState = sheetState,
         sheetContent = {
             selectedCase?.let { case ->
-                LegalCaseInfo(case.first, case.second) {
-                    // Close the bottom sheet when the back button is clicked
-                    coroutineScope.launch {
-                        sheetState.bottomSheetState.hide()
-                    }
-                }
+                LegalCaseInfo(case.first, case.second)
             }
         },
         sheetShape = RoundedCornerShape(0.dp), // Remove corner rounding to make it fullscreen
@@ -73,6 +82,32 @@ fun LegalCasesScreen(navController: NavController, appViewModel: UserViewModel) 
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Header Row with "Folio" and "Nombre de Cliente"
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Folio",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TecBlue,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "Nombre de Cliente",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TecBlue,
+                    modifier = Modifier.weight(2f),
+                    textAlign = TextAlign.End
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             // List of Legal Cases (Folio, Nombre)
             Column(
                 modifier = Modifier
@@ -80,7 +115,12 @@ fun LegalCasesScreen(navController: NavController, appViewModel: UserViewModel) 
                     .fillMaxHeight()
             ) {
                 if (filteredCases.isEmpty()) {
-                    Text(text = "No se encontraron resultados", modifier = Modifier.padding(16.dp))
+                    Text(
+                        text = "No se encontraron resultados",
+                        modifier = Modifier.padding(16.dp),
+                        color = TecBlue,
+                        textAlign = TextAlign.Center
+                    )
                 } else {
                     filteredCases.forEach { (folio, nombre) ->
                         LegalCaseItem(folio = folio, nombre = nombre) {
@@ -104,40 +144,77 @@ fun LegalCaseItem(folio: String, nombre: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White, RoundedCornerShape(8.dp))
+            .background(
+                color = TecBlue, // background color
+                shape = RoundedCornerShape(8.dp) // Rounded corners
+            )
             .padding(16.dp)
             .clickable { onClick() },
         contentAlignment = Alignment.CenterStart
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp), // Padding around text
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 text = folio,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
+                color = White,
                 modifier = Modifier.weight(1f)
             )
             Text(
                 text = nombre,
                 fontSize = 18.sp,
-                modifier = Modifier.weight(2f)
+                color = White,
+                modifier = Modifier.weight(2f),
+                textAlign = TextAlign.End
             )
         }
     }
 }
 
 @Composable
-fun LegalCaseInfo(folio: String, nombre: String, onBackClick: () -> Unit) {
+fun LegalCaseInfo(folio: String, nombre: String) {
     Column(
         modifier = Modifier
             .fillMaxSize() // This ensures that the bottom sheet takes up the full screen
             .padding(70.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Información del Caso", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Text(
+            text = "Información del Caso",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = TecBlue
+        )
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Folio: $folio", fontSize = 18.sp)
+
+        // Folio text with "Folio:" in bold
+        Text(
+            buildAnnotatedString {
+                pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                append("Folio: ")
+                pop()
+                append(folio)
+            },
+            fontSize = 18.sp
+        )
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Nombre: $nombre", fontSize = 18.sp)
+
+        // Nombre text with "Nombre:" in bold
+        Text(
+            buildAnnotatedString {
+                pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                append("Nombre: ")
+                pop()
+                append(nombre)
+            },
+            fontSize = 18.sp
+        )
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
+
