@@ -2,6 +2,7 @@
 
 package com.example.proyectobufetec.navigation
 
+import ProfileScreen
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -28,7 +29,7 @@ import com.example.proyectobufetec.screens.BibliotecaScreen
 import com.example.proyectobufetec.screens.ChatBotScreen
 import com.example.proyectobufetec.screens.HomeScreen
 import com.example.proyectobufetec.screens.LoginScreen
-import com.example.proyectobufetec.screens.ProfileScreen
+
 import com.example.proyectobufetec.screens.RegisterScreen
 import com.example.proyectobufetec.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
