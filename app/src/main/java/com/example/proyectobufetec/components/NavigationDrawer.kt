@@ -14,7 +14,6 @@ import com.example.proyectobufetec.viewmodel.UserViewModel
 @Composable
 fun NavigationDrawer(navController: NavController, appViewModel: UserViewModel, onNavigate: (String) -> Unit) {
     val isUserLogged = appViewModel.isUserLogged
-// Obtener el estado del back stack del NavController
 
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry.value?.destination?.route
@@ -41,7 +40,7 @@ fun NavigationDrawer(navController: NavController, appViewModel: UserViewModel, 
 
         NavigationDrawerItem(
             label = { Text("Casos Legales") },
-            selected = currentDestination == "Casos Legales",
+            selected = currentDestination == "casos legales",
             onClick = { onNavigate("casos legales") }
         )
 
@@ -55,6 +54,12 @@ fun NavigationDrawer(navController: NavController, appViewModel: UserViewModel, 
             label = { Text("Perfil") },
             selected = currentDestination == "profile",
             onClick = { onNavigate("profile") }
+        )
+
+        NavigationDrawerItem(
+            label = { Text("Info Abogados") },
+            selected = currentDestination == "info abogados",
+            onClick = { onNavigate("info abogados") }
         )
     }
 }
