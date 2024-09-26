@@ -100,8 +100,8 @@ fun ChatBubble(message: Message) {
     val backgroundBrush = if (message.isUser) {
         Brush.horizontalGradient(
             colors = listOf(
-                Color(0xFFFFB6C1), // Light Pink
-                Color(0xFFFF69B4)  // Hot Pink
+                Color(0xFF0033A0), // Light Pink
+                Color(0xFF0033A0)  // Hot Pink
             )
         )
     } else {
