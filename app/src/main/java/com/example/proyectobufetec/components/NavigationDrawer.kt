@@ -68,6 +68,13 @@ fun NavigationDrawer(navController: NavController, appViewModel: UserViewModel, 
             selected = currentDestination == "busqueda abogados",
             onClick = { onNavigate("busqueda abogados") }
         )
+
+        // New EstadoCasoScreen entry
+        NavigationDrawerItem(
+            label = { Text("Estado del Caso") },
+            selected = currentDestination == "estado caso",
+            onClick = { onNavigate("estado caso") }
+        )
     }
 }
 
