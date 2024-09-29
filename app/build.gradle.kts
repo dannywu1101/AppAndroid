@@ -62,6 +62,8 @@ dependencies {
 
     //poty
     implementation(libs.okhttp)
+    implementation(libs.androidx.material.icons.extended)
+
 
     // barra de busqueda?
     implementation(libs.material3)
