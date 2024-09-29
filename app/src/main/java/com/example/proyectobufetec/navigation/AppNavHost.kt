@@ -21,7 +21,6 @@ import com.example.proyectobufetec.screens.HomeScreen
 import com.example.proyectobufetec.screens.LoginScreen
 import com.example.proyectobufetec.screens.RegisterScreen
 import com.example.proyectobufetec.screens.abogado.LegalCasesScreen
-import com.example.proyectobufetec.screens.clientes.InfoAbogadosScreen
 import com.example.proyectobufetec.screens.clientes.BusquedaAbogadosScreen
 import com.example.proyectobufetec.screens.clientes.EstadoCasoScreen
 import com.example.proyectobufetec.viewmodel.UserViewModel
@@ -201,39 +200,6 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
                     },
                     content = { padding ->
                         LegalCasesScreen(navController, appViewModel)
-                    }
-                )
-            }
-        }
-
-        // NUEVA RUTA: Info Abogados
-        composable("info abogados") {
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet {
-                        NavigationDrawer(navController, appViewModel) { destination ->
-                            scope.launch { drawerState.close() }
-                            navController.navigate(destination)
-                        }
-                    }
-                }
-            ) {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("Info Abogados") },
-                            navigationIcon = {
-                                IconButton(onClick = {
-                                    scope.launch { drawerState.open() }
-                                }) {
-                                    Icon(Icons.Default.Menu, contentDescription = "Menu")
-                                }
-                            }
-                        )
-                    },
-                    content = { padding ->
-                        InfoAbogadosScreen(navController, appViewModel)
                     }
                 )
             }
