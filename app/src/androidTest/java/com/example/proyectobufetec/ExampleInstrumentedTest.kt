@@ -1,24 +1,66 @@
+// com.example.proyectobufetec/ExampleInstrumentedTest
+
 package com.example.proyectobufetec
 
+import android.content.Context
+import androidx.compose.ui.test.*
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.ext.junit.runners.AndroidJUnit4
-
+import com.example.proyectobufetec.components.NavigationDrawer
+import com.example.proyectobufetec.screens.clientes.BibliotecaScreen
+import com.example.proyectobufetec.screens.clientes.BusquedaAbogadosScreen
+import com.example.proyectobufetec.screens.clientes.ChatBotScreen
+import com.example.proyectobufetec.service.FakeUserService
+import com.example.proyectobufetec.viewmodel.UserViewModel
+import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 
-import org.junit.Assert.*
 
-/**
- * Instrumented test, which will execute on an Android device.
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
-@RunWith(AndroidJUnit4::class)
 class ExampleInstrumentedTest {
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
     @Test
-    fun useAppContext() {
-        // Context of the app under test.
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.example.proyectobufetec", appContext.packageName)
+    fun searchAndViewLawyerInfo() {
+        // Use the fake UserService for testing
+        val fakeUserService = FakeUserService()
+
+        // Creating an instance of UserViewModel with the fake UserService
+        val userViewModel = UserViewModel(userService = fakeUserService)
+
+        // Get the real context from InstrumentationRegistry
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val fakeNavController = FakeNavController(context)
+
+        // Set up the initial UI with the fake UserService and fakeNavController
+        composeTestRule.setContent {
+            BusquedaAbogadosScreen(navController = fakeNavController, appViewModel = userViewModel)
+        }
+
+        // Simulate typing "Juan" in the search field
+        composeTestRule.onNodeWithTag("Buscar abogados").performTextInput("Juan")
+
+        // Check if the filtered lawyer "Juan Pérez" is displayed
+        composeTestRule.onNodeWithText("Juan Pérez").assertExists()
+
+        // Click on "Juan Pérez"
+        composeTestRule.onNodeWithText("Juan Pérez").performClick()
+
+        // Check if the lawyer's info is shown correctly in the bottom sheet
+        composeTestRule.onNodeWithText("Información del Abogado").assertExists()
+        composeTestRule.onNodeWithText("Nombre: Juan Pérez").assertExists()
+        composeTestRule.onNodeWithText("Especialidad: Divorcios").assertExists()
+    }
+
+    // FakeNavController is a simple mock implementation of NavController for testing
+    class FakeNavController(context: Context) : NavController(context) {
+        override fun popBackStack(): Boolean {
+            return true // Always return true for testing purposes
+        }
     }
 }

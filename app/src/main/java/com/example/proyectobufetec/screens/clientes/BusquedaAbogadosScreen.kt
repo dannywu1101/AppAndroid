@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/screens/clientes/BusquedaAbogadosScreen.kt
+
 package com.example.proyectobufetec.screens.clientes
 
 import androidx.compose.foundation.background
@@ -11,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -73,10 +76,13 @@ fun BusquedaAbogadosScreen(navController: NavController, appViewModel: UserViewM
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Buscar abogados") },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("Buscar abogados"), // <-- Added tag for testing
                 shape = RoundedCornerShape(8.dp),
                 singleLine = true,
             )
+
 
             Spacer(modifier = Modifier.height(16.dp))
 

@@ -28,29 +28,28 @@ val TecBlue = Color(0xFF0033A0)  // Azul representativo del TEC
 @Composable
 fun LegalCasesScreen(navController: NavController, appViewModel: UserViewModel) {
     var searchQuery by remember { mutableStateOf("") }
-    var selectedCase by remember { mutableStateOf<Pair<String, String>?>(null) }
+    var selectedCase by remember { mutableStateOf<Triple<String, String, Pair<String, String>>?>(null) }
     val sheetState = rememberBottomSheetScaffoldState()
     val coroutineScope = rememberCoroutineScope()
 
-    // List of legal cases to display
+    // List of legal cases to display (folio, nombre, estado, descripcion)
     val legalCases = listOf(
-        "1234" to "Ignacio López",
-        "4321" to "Javier García",
-        "3214" to "Cristina Martínez",
-        "3124" to "María Rodríguez",
-        "1243" to "Miguel Sánchez",
-        "2134" to "Alberto Nuñez",
-        "2143" to "Cristián Pérez",
-        "3241" to "Carlos Hernández",
-        "1324" to "Gabriela Gómez",
-        "1342" to "Oscar García",
-        "1423" to "Pablo López",
-        "1432" to "Cristóbal Gutiérrez",
-        "2314" to "Javier Cordova"
+        Triple("1234", "Ignacio López", "Abierto" to "Caso de disputa por contrato."),
+        Triple("4321", "Javier García", "Cerrado" to "Caso de divorcio finalizado."),
+        Triple("3214", "Cristina Martínez", "Pendiente" to "Disputa laboral en proceso."),
+        Triple("3124", "María Rodríguez", "Cerrado" to "Caso de adopción exitoso."),
+        Triple("1243", "Miguel Sánchez", "Abierto" to "Fraude financiero en investigación."),
+        Triple("2134", "Alberto Nuñez", "Pendiente" to "Caso de herencia disputada."),
+        Triple("2143", "Cristián Pérez", "Cerrado" to "Demanda por negligencia resuelta."),
+        Triple("3241", "Carlos Hernández", "Abierto" to "Caso de propiedad intelectual."),
+        Triple("1324", "Gabriela Gómez", "Pendiente" to "Caso de acoso laboral."),
+        Triple("1342", "Oscar García", "Cerrado" to "Demanda por difamación resuelta."),
+        Triple("1423", "Pablo López", "Abierto" to "Caso de pensión alimenticia en curso."),
+        Triple("1432", "Cristóbal Gutiérrez", "Abierto" to "Demanda por daños personales.")
     )
 
     // Filtered cases based on search query
-    val filteredCases = legalCases.filter { (folio, _) ->
+    val filteredCases = legalCases.filter { (folio, _, _) ->
         folio.contains(searchQuery, ignoreCase = true) || searchQuery.isEmpty()
     }
 
@@ -58,7 +57,7 @@ fun LegalCasesScreen(navController: NavController, appViewModel: UserViewModel) 
         scaffoldState = sheetState,
         sheetContent = {
             selectedCase?.let { case ->
-                LegalCaseInfo(case.first, case.second)
+                LegalCaseInfo(case.first, case.second, case.third.first, case.third.second)
             }
         },
         sheetShape = RoundedCornerShape(0.dp), // Remove corner rounding to make it fullscreen
@@ -122,9 +121,9 @@ fun LegalCasesScreen(navController: NavController, appViewModel: UserViewModel) 
                         textAlign = TextAlign.Center
                     )
                 } else {
-                    filteredCases.forEach { (folio, nombre) ->
+                    filteredCases.forEach { (folio, nombre, estadoDescripcion) ->
                         LegalCaseItem(folio = folio, nombre = nombre) {
-                            selectedCase = folio to nombre
+                            selectedCase = Triple(folio, nombre, estadoDescripcion)
                             coroutineScope.launch {
                                 sheetState.bottomSheetState.expand() // Expands to fullscreen
                             }
@@ -177,7 +176,7 @@ fun LegalCaseItem(folio: String, nombre: String, onClick: () -> Unit) {
 }
 
 @Composable
-fun LegalCaseInfo(folio: String, nombre: String) {
+fun LegalCaseInfo(folio: String, nombre: String, estado: String, descripcion: String) {
     Column(
         modifier = Modifier
             .fillMaxSize() // This ensures that the bottom sheet takes up the full screen
@@ -214,7 +213,30 @@ fun LegalCaseInfo(folio: String, nombre: String) {
             },
             fontSize = 18.sp
         )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Estado text with "Estado:" in bold
+        Text(
+            buildAnnotatedString {
+                pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                append("Estado: ")
+                pop()
+                append(estado)
+            },
+            fontSize = 18.sp
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Descripción text with "Descripción:" in bold
+        Text(
+            buildAnnotatedString {
+                pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                append("Descripción: ")
+                pop()
+                append(descripcion)
+            },
+            fontSize = 18.sp
+        )
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
-
