@@ -1,27 +1,18 @@
-// com.example.proyectobufetec/ExampleInstrumentedTest
-
 package com.example.proyectobufetec
 
 import android.content.Context
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import androidx.test.platform.app.InstrumentationRegistry
-import com.example.proyectobufetec.components.NavigationDrawer
-import com.example.proyectobufetec.screens.clientes.BibliotecaScreen
 import com.example.proyectobufetec.screens.clientes.BusquedaAbogadosScreen
-import com.example.proyectobufetec.screens.clientes.ChatBotScreen
 import com.example.proyectobufetec.service.FakeUserService
 import com.example.proyectobufetec.viewmodel.UserViewModel
 import org.junit.Rule
 import org.junit.Test
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-
 
 class ExampleInstrumentedTest {
+
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -31,7 +22,7 @@ class ExampleInstrumentedTest {
         val fakeUserService = FakeUserService()
 
         // Creating an instance of UserViewModel with the fake UserService
-        val userViewModel = UserViewModel(userService = fakeUserService)
+        val userViewModel = UserViewModel(usuarioApiService = fakeUserService)
 
         // Get the real context from InstrumentationRegistry
         val context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -57,7 +48,7 @@ class ExampleInstrumentedTest {
         composeTestRule.onNodeWithText("Especialidad: Divorcios").assertExists()
     }
 
-    // FakeNavController is a simple mock implementation of NavController for testing
+    // FakeNavController for handling navigation in tests
     class FakeNavController(context: Context) : NavController(context) {
         override fun popBackStack(): Boolean {
             return true // Always return true for testing purposes
