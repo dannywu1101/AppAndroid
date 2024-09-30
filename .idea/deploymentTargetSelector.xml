@@ -8,13 +8,7 @@
       <SelectionState runConfigName="searchAndViewLawyerInfo()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="ExampleInstrumentedTest">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="navigateFromChatBotToBibliotecaAndOpenLink()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="testNavigateFromChatBotToBibliotecaViaDrawer()">
+      <SelectionState runConfigName="testChatBotInteraction()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

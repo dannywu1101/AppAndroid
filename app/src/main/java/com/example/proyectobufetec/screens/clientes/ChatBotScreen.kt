@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material3.Icon
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
@@ -63,7 +64,9 @@ fun ChatBotScreen(navController: NavController, appViewModel: UserViewModel, mod
         ) {
             LazyColumn(
                 state = listState,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag("ChatMessagesList")  // Agregamos un testTag para la lista de mensajes
             ) {
                 items(messageList) { message ->
                     ChatBubble(message)
@@ -90,6 +93,7 @@ fun ChatBotScreen(navController: NavController, appViewModel: UserViewModel, mod
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
+                .testTag("UserInputField")  // Agregamos un testTag para el campo de texto
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -120,6 +124,7 @@ fun ChatBotScreen(navController: NavController, appViewModel: UserViewModel, mod
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
+                .testTag("SendButton")  // Agregamos un testTag para el botón de enviar
         ) {
             Text(text = "ENVIAR", color = Color.White, style = MaterialTheme.typography.titleMedium)
         }
