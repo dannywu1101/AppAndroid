@@ -34,17 +34,17 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Crear un solo NavHost para manejar todas las rutas
+    // Create a single NavHost for handling all routes
     NavHost(
         navController = navController,
-        startDestination = "chatbot"
+        startDestination = "login"
     ) {
         composable("login") {
             LoginScreen(navController, appViewModel)
         }
 
         composable("register") {
-            RegisterScreen(navController)
+            RegisterScreen(navController, appViewModel)
         }
 
         composable("home") {
@@ -148,7 +148,7 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
                 drawerState = drawerState,
                 drawerContent = {
                     ModalDrawerSheet {
-                        NavigationDrawer(navController,appViewModel) { destination ->
+                        NavigationDrawer(navController, appViewModel) { destination ->
                             scope.launch { drawerState.close() }
                             navController.navigate(destination)
                         }
@@ -179,7 +179,7 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
             ModalNavigationDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    NavigationDrawer(navController,appViewModel) { destination ->
+                    NavigationDrawer(navController, appViewModel) { destination ->
                         scope.launch { drawerState.close() }
                         navController.navigate(destination)
                     }
@@ -205,7 +205,7 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
             }
         }
 
-        // NUEVA RUTA: Busqueda Abogados
+        // Nueva Ruta: Búsqueda Abogados
         composable("busqueda abogados") {
             ModalNavigationDrawer(
                 drawerState = drawerState,
@@ -238,7 +238,7 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
             }
         }
 
-        // NUEVA RUTA: Estado Caso
+        // Nueva Ruta: Estado Caso
         composable("estado caso") {
             ModalNavigationDrawer(
                 drawerState = drawerState,
@@ -270,8 +270,5 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
                 )
             }
         }
-
-
     }
 }
-

@@ -64,6 +64,9 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.androidx.material.icons.extended)
 
+    // memo
+    implementation(libs.androidx.material3.v110alpha02)
+
 
     // barra de busqueda?
     implementation(libs.material3)

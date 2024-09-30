@@ -7,79 +7,72 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
-import com.example.proyectobufetec.data.LoginUserRequest
-import com.example.proyectobufetec.data.LoginUserResponse
-import com.example.proyectobufetec.data.RegisterUserRequest
-import com.example.proyectobufetec.data.RegisterUserResponse
-import com.example.proyectobufetec.service.UserService
+import com.example.proyectobufetec.data.usuario.LoginRequest
+import com.example.proyectobufetec.data.usuario.LoginUserState
+import com.example.proyectobufetec.data.usuario.RegisterRequest
+import com.example.proyectobufetec.data.usuario.UsuarioApiService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
-class UserViewModel(private val userService: UserService) : ViewModel() {
+class UserViewModel(private val usuarioApiService: UsuarioApiService) : ViewModel() {
 
     var email by mutableStateOf("Prueba")
     var password by mutableStateOf("1234")
 
-    var isUserLogged by mutableStateOf(false)
+    private val _loginState = MutableStateFlow<LoginUserState>(LoginUserState.Initial)
+    val loginState: StateFlow<LoginUserState> = _loginState
 
-    private val _login = MutableStateFlow<LoginUserState>(LoginUserState.Initial)
-    val login: StateFlow<LoginUserState> = _login
+    private val _registerState = MutableStateFlow<RegisterUserState>(RegisterUserState.Initial)
+    val registerState: StateFlow<RegisterUserState> = _registerState
 
-    private val _register = MutableStateFlow<RegisterUserState>(RegisterUserState.Initial)
-    val register: StateFlow<RegisterUserState> = _register
+    private val _isUserLogged = MutableStateFlow(false)
+    val isUserLogged: StateFlow<Boolean> = _isUserLogged
 
+    fun setUserLogged(isLogged: Boolean) {
+        _isUserLogged.value = isLogged
+    }
 
-    fun registerUser(user: RegisterUserRequest) {
-
+    // Login user function that handles TokenResponse
+    fun loginUser(user: LoginRequest) {
+        _loginState.value = LoginUserState.Initial
         viewModelScope.launch {
-
             try {
-                _register.value = RegisterUserState.Loading
-                val response = userService.addUser(user)
-                _register.value = RegisterUserState.Success(response)
+                _loginState.value = LoginUserState.Loading
+                val response = usuarioApiService.login(user)
+                if (response.isSuccessful) {
+                    val tokenResponse = response.body()
+                    _loginState.value = LoginUserState.Success(tokenResponse!!)
+                    setUserLogged(true)
+                } else {
+                    _loginState.value = LoginUserState.Error("Login failed: ${response.message()}")
+                }
             } catch (e: Exception) {
-                _register.value = RegisterUserState.Error(e.message.toString())
+                _loginState.value = LoginUserState.Error("Error en el login: ${e.message}")
             }
         }
     }
 
-
-    fun loginUser(user: LoginUserRequest) {
-
-        _login.value = LoginUserState.Initial
+    // Register user function that handles TokenResponse
+    fun registerUser(user: RegisterRequest) {
         viewModelScope.launch {
-
             try {
-                _login.value = LoginUserState.Loading
-                val response = userService.loginUser(user)
-                //isUserLogged = true
-                _login.value = LoginUserState.Success(response)
+                _registerState.value = RegisterUserState.Loading
+                val response = usuarioApiService.register(user)
+
+                if (response.isSuccessful) {
+                    val tokenResponse = response.body()
+                    _registerState.value = RegisterUserState.Success(tokenResponse!!)
+                    println("Registration successful: ${tokenResponse.token}")
+                } else {
+                    _registerState.value = RegisterUserState.Error("Registration failed: ${response.message()}")
+                    println("Registration failed: ${response.message()}")
+                }
             } catch (e: Exception) {
-                _login.value = LoginUserState.Error("Error en el login: " + e.message.toString())
+                _registerState.value = RegisterUserState.Error("Error during registration: ${e.message}")
+                println("Error during registration: ${e.message}")
             }
         }
     }
-
-
-
-
-
 }
 
-
-sealed class LoginUserState {
-    object Initial : LoginUserState()
-    object Loading : LoginUserState()
-    data class Success(val loginResponse: LoginUserResponse) : LoginUserState()
-    data class Error(val errorMessage: String) : LoginUserState()
-}
-
-sealed class RegisterUserState {
-    object Initial : RegisterUserState()
-    object Loading : RegisterUserState()
-    data class Success(val registerResponse: RegisterUserResponse) : RegisterUserState()
-    data class Error(val errorMessage: String) : RegisterUserState()
-}
