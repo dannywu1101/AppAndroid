@@ -88,13 +88,5 @@ fun EstadoCasoScreen(navController: NavController, appViewModel: UserViewModel) 
                 }
             }
         }
-
-        // Spacer for some space between box and button
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Button for navigation or actions (optional)
-        Button(onClick = { navController.popBackStack() }) {
-            Text(text = "Volver")
-        }
     }
 }

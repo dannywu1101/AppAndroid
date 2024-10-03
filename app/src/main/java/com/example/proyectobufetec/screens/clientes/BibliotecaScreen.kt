@@ -23,8 +23,8 @@ import android.net.Uri
 import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.platform.LocalContext
+import com.example.proyectobufetec.ui.theme.TecBlue
 
-val TecBlue = Color(0xFF0033A0)  // Azul representativo del TEC
 
 @Composable
 fun BibliotecaScreen(navController: NavController, appViewModel: UserViewModel) {

@@ -23,12 +23,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.proyectobufetec.data.usuario.RegisterRequest
+import com.example.proyectobufetec.ui.theme.TecBlue
 import com.example.proyectobufetec.viewmodel.RegisterUserState
 import com.example.proyectobufetec.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 import java.util.Calendar
-
-val TecBlue = Color(0xFF0033A0)  // Azul representativo del TEC
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

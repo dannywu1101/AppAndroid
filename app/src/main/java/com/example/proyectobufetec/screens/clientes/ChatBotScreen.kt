@@ -38,6 +38,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+
+
 @Composable
 fun ChatBotScreen(navController: NavController, appViewModel: UserViewModel, modifier: Modifier = Modifier) {
     val messageList = remember { mutableStateListOf<Message>(
