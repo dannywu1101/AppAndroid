@@ -1,6 +1,6 @@
-// data/network/RetrofitInstance.kt
 package com.example.proyectobufetec.data.network
 
+import android.util.Log
 import com.example.proyectobufetec.data.usuario.UsuarioApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -11,23 +11,33 @@ object RetrofitInstance {
 
     private const val BASE_URL = "https://bufetec-postgres.onrender.com/api/"
 
-    // Create a logging interceptor to log Retrofit requests and responses
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    // Create an OkHttpClient that includes the logging interceptor
-    private val client = OkHttpClient.Builder()
-        .addInterceptor(loggingInterceptor)
-        .build()
+    // Function to create a Retrofit instance with an optional auth token
+    private fun getRetrofit(authToken: String?): Retrofit {
+        val client = OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .addInterceptor(AuthInterceptor(authToken))  // Add the custom AuthInterceptor
+            .build()
 
-    // Create Retrofit instance
-    val api: UsuarioApiService by lazy {
-        Retrofit.Builder()
+        return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(client) // Add the OkHttpClient
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(UsuarioApiService::class.java)
+    }
+
+    // Service for Chat API, which now requires token support
+    fun getChatApi(authToken: String?): ChatApiService {
+        Log.d("RetrofitInstance", "getChatApi called with token: $authToken")
+        return getRetrofit(authToken).create(ChatApiService::class.java)
+    }
+
+    // Service for Usuario API, with optional token support
+    fun getUsuarioApi(authToken: String?): UsuarioApiService {
+        Log.d("RetrofitInstance", "getUsuarioApi called with token: $authToken")
+        return getRetrofit(authToken).create(UsuarioApiService::class.java)
     }
 }

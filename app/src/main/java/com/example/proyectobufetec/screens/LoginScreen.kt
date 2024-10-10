@@ -1,7 +1,7 @@
-// com.example.proyectobufetec/screens/LoginScreen.kt
 package com.example.proyectobufetec.screens
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -16,10 +16,12 @@ import com.example.proyectobufetec.R
 import com.example.proyectobufetec.viewmodel.UserViewModel
 import com.example.proyectobufetec.data.usuario.LoginUserState
 import com.example.proyectobufetec.data.usuario.LoginRequest
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun LoginScreen(navController: NavController, userViewModel: UserViewModel) {
+fun LoginScreen(navController: NavController, userViewModel: UserViewModel, context: Context) {
     val snackbarHostState = remember { SnackbarHostState() }
     val loginState by userViewModel.loginState.collectAsState()
 
@@ -33,6 +35,9 @@ fun LoginScreen(navController: NavController, userViewModel: UserViewModel) {
                 // Show loading if needed
             }
             is LoginUserState.Success -> {
+                // Save the token to EncryptedSharedPreferences
+                saveAuthToken(context, login.tokenResponse.token)
+
                 snackbarHostState.showSnackbar("Login exitoso")
                 navController.navigate("home")
             }
@@ -135,4 +140,21 @@ private fun Loading(loginState: LoginUserState) {
         }
         else -> {}
     }
+}
+
+// Function to save the token to EncryptedSharedPreferences
+private fun saveAuthToken(context: Context, token: String) {
+    val masterKey = MasterKey.Builder(context)
+        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+        .build()
+
+    val sharedPreferences = EncryptedSharedPreferences.create(
+        context,
+        "secure_prefs",
+        masterKey,
+        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+    )
+
+    sharedPreferences.edit().putString("auth_token", token).apply()
 }

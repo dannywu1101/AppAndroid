@@ -1,9 +1,6 @@
-// com.example.proyectobufetec/screens/clientes/ChatBotScreen.kt
-
 package com.example.proyectobufetec.screens.clientes
-import android.util.Log
+
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,32 +13,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.proyectobufetec.viewmodel.UserViewModel
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONArray
-import org.json.JSONObject
-import java.io.IOException
-import kotlin.concurrent.thread
+import com.example.proyectobufetec.viewmodel.ChatViewModel
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import kotlinx.coroutines.launch
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Gavel
-import androidx.compose.material3.Icon
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 
-
 @Composable
-fun ChatBotScreen(navController: NavController, appViewModel: UserViewModel, modifier: Modifier = Modifier) {
+fun ChatBotScreen(navController: NavController, chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
     val messageList = remember { mutableStateListOf<Message>(
         Message("¡Hola! Soy tu asistente virtual, ¿en qué puedo ayudarte hoy?", isUser = false)
     ) }
@@ -50,25 +36,30 @@ fun ChatBotScreen(navController: NavController, appViewModel: UserViewModel, mod
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    // Usamos un `Column` que permite hacer scroll en toda la pantalla
+    val chatResponse by chatViewModel.chatBotResponse.collectAsState()
+
+    LaunchedEffect(chatResponse) {
+        if (chatResponse.isNotEmpty()) {
+            messageList.add(Message(chatResponse, isUser = false))
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()) // Permite el scroll vertical
+            .verticalScroll(rememberScrollState())
             .background(Color(0xFFF9F9F9))
             .padding(16.dp)
     ) {
         Box(
             modifier = Modifier
-                .height(350.dp)  // Aumenta la altura del área del chatbot
+                .height(350.dp)
                 .background(Color(0xFFF0F0F5), shape = RoundedCornerShape(12.dp))
                 .padding(16.dp)
         ) {
             LazyColumn(
                 state = listState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag("ChatMessagesList")  // Agregamos un testTag para la lista de mensajes
+                modifier = Modifier.fillMaxSize()
             ) {
                 items(messageList) { message ->
                     ChatBubble(message)
@@ -76,7 +67,6 @@ fun ChatBotScreen(navController: NavController, appViewModel: UserViewModel, mod
             }
         }
 
-        // Ajustamos el espaciado para evitar el gran espacio entre el botón de enviar y la sección siguiente
         Spacer(modifier = Modifier.height(8.dp))
 
         TextField(
@@ -95,7 +85,6 @@ fun ChatBotScreen(navController: NavController, appViewModel: UserViewModel, mod
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .testTag("UserInputField")  // Agregamos un testTag para el campo de texto
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -103,56 +92,33 @@ fun ChatBotScreen(navController: NavController, appViewModel: UserViewModel, mod
         Button(
             onClick = {
                 if (userInput.isNotEmpty()) {
-                    val userMessage = Message(userInput, isUser = true)
-                    messageList.add(userMessage)
-
-                    getResponse(userInput) { response ->
-                        val botMessage = Message(response, isUser = false)
-                        messageList.add(botMessage)
-
-                        coroutineScope.launch {
-                            listState.animateScrollToItem(messageList.size - 1)
-                        }
-                    }
-
+                    messageList.add(Message(userInput, isUser = true))
+                    chatViewModel.sendMessage(userInput)
                     userInput = ""
-
-                    coroutineScope.launch {
-                        listState.animateScrollToItem(messageList.size - 1)
-                    }
+                    coroutineScope.launch { listState.animateScrollToItem(messageList.size - 1) }
                 }
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF003366)),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .testTag("SendButton")  // Agregamos un testTag para el botón de enviar
+            modifier = Modifier.fillMaxWidth().padding(8.dp)
         ) {
             Text(text = "ENVIAR", color = Color.White, style = MaterialTheme.typography.titleMedium)
         }
 
-        // Eliminar el espaciador extra entre el botón y el título
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Título más destacado para la sección de "Descubre Nuevas Posibilidades"
         Text(
             text = "DESCUBRE NUEVAS POSIBILIDADES",
             style = MaterialTheme.typography.titleLarge.copy(
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold
             ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp, bottom = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp),
             color = Color(0xFF003366)
         )
 
-        // Sección de botones con menos espacio y scroll permitido
         Column(modifier = Modifier.fillMaxWidth()) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
                 horizontalArrangement = Arrangement.Start
             ) {
                 SquareButtonWithIcon(
@@ -168,9 +134,7 @@ fun ChatBotScreen(navController: NavController, appViewModel: UserViewModel, mod
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
                 horizontalArrangement = Arrangement.Start
             ) {
                 SquareButtonWithIcon(
@@ -194,18 +158,11 @@ fun SquareButtonWithIcon(title: String, icon: ImageVector, description: String, 
     ) {
         Button(
             onClick = onClick,
-            modifier = Modifier
-                .size(80.dp)
-                .padding(end = 8.dp),
+            modifier = Modifier.size(80.dp).padding(end = 8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF003366)),
             shape = RoundedCornerShape(0.dp)
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                tint = Color.White
-            )
+            Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(24.dp), tint = Color.White)
         }
 
         Column(
@@ -236,10 +193,7 @@ fun ChatBubble(message: Message) {
     val alignment = if (message.isUser) Arrangement.End else Arrangement.Start
     val backgroundBrush = if (message.isUser) {
         Brush.horizontalGradient(
-            colors = listOf(
-                Color(0xFF003366),
-                Color(0xFF004080)
-            )
+            colors = listOf(Color(0xFF003366), Color(0xFF004080))
         )
     } else {
         SolidColor(Color(0xFFD1D1E0))
@@ -247,9 +201,7 @@ fun ChatBubble(message: Message) {
     val textColor = if (message.isUser) Color.White else Color.Black
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
+        modifier = Modifier.fillMaxWidth().padding(8.dp),
         horizontalArrangement = alignment
     ) {
         Box(
@@ -264,53 +216,3 @@ fun ChatBubble(message: Message) {
 }
 
 data class Message(val text: String, val isUser: Boolean)
-
-
-fun getResponse(userMessage: String, callback: (String) -> Unit) {
-    val client = OkHttpClient()
-
-    val url = "https://bufetec-postgres.onrender.com/api/chat"
-
-    val requestBody = """
-        {
-            "message": "$userMessage"
-        }
-    """.trimIndent()
-
-    val request = Request.Builder()
-        .url(url)
-        .addHeader("Content-Type", "application/json")
-        .post(requestBody.toRequestBody("application/json".toMediaTypeOrNull()))
-        .build()
-
-    thread {
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e("error", "API failed", e)
-                callback("Failed to get a response. Try again.")
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (!response.isSuccessful) {
-                    Log.e("error", "Unexpected code $response")
-                    callback("Error: ${response.code}")
-                    return
-                }
-
-                val body = response.body?.string()
-                if (body != null) {
-                    try {
-                        val jsonObject = JSONObject(body)
-                        val textResult = jsonObject.getString("response")
-                        callback(textResult.trim())
-                    } catch (e: Exception) {
-                        Log.e("error", "JSON parsing error", e)
-                        callback("Error parsing response. Please try again.")
-                    }
-                } else {
-                    callback("No response from the server.")
-                }
-            }
-        })
-    }
-}
