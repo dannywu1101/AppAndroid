@@ -4,6 +4,7 @@ package com.example.proyectobufetec.navigation
 
 import ProfileScreen
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -29,23 +30,61 @@ import com.example.proyectobufetec.screens.clientes.BusquedaAbogadosScreen
 import com.example.proyectobufetec.screens.clientes.EstadoCasoScreen
 import com.example.proyectobufetec.screens.clientes.InfoAbogadosScreen
 import com.example.proyectobufetec.viewmodel.UserViewModel
+import com.example.proyectobufetec.viewmodel.ChatViewModel
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
+fun AppNavHost(
+    appViewModel: UserViewModel,
+    chatViewModel: ChatViewModel,  // Added ChatViewModel
+    context: Context,  // Added context for login
+    padding: Modifier
+) {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Create a single NavHost for handling all routes
+    // Shared scaffold and drawer logic for each screen
+    @Composable
+    fun ModalScaffold(contentTitle: String, content: @Composable () -> Unit) {
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet {
+                    NavigationDrawer(navController, appViewModel) { destination ->
+                        scope.launch { drawerState.close() }
+                        navController.navigate(destination)
+                    }
+                }
+            }
+        ) {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = { Text(contentTitle) },
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                scope.launch { drawerState.open() }
+                            }) {
+                                Icon(Icons.Default.Menu, contentDescription = "Menu")
+                            }
+                        }
+                    )
+                },
+                content = { content() } // Simplified padding handling
+            )
+        }
+    }
+
+    // NavHost for handling all routes
     NavHost(
         navController = navController,
         startDestination = "login"
     ) {
         composable("login") {
-            LoginScreen(navController, appViewModel)
+            LoginScreen(navController, appViewModel, context)  // Pass context for login
         }
 
         composable("register") {
@@ -53,266 +92,48 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
         }
 
         composable("home") {
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet {
-                        NavigationDrawer(navController, appViewModel) { destination ->
-                            scope.launch { drawerState.close() }
-                            navController.navigate(destination)
-                        }
-                    }
-                }
-            ) {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("Pantalla Principal") },
-                            navigationIcon = {
-                                IconButton(onClick = {
-                                    scope.launch { drawerState.open() }
-                                }) {
-                                    Icon(Icons.Default.Menu, contentDescription = "Menu")
-                                }
-                            }
-                        )
-                    },
-                    content = { padding ->
-                        HomeScreen(navController, appViewModel)
-                    }
-                )
+            ModalScaffold(contentTitle = "Pantalla Principal") {
+                HomeScreen(navController, appViewModel)
             }
         }
 
         composable("chatbot") {
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet {
-                        NavigationDrawer(navController, appViewModel) { destination ->
-                            scope.launch { drawerState.close() }
-                            navController.navigate(destination)
-                        }
-                    }
-                }
-            ) {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("ChatBot") },
-                            navigationIcon = {
-                                IconButton(onClick = {
-                                    scope.launch { drawerState.open() }
-                                }) {
-                                    Icon(Icons.Default.Menu, contentDescription = "Menu")
-                                }
-                            }
-                        )
-                    },
-                    content = { paddingValues ->
-                        ChatBotScreen(navController, appViewModel, modifier = Modifier.padding(paddingValues))
-                    }
-                )
+            ModalScaffold(contentTitle = "ChatBot") {
+                ChatBotScreen(navController, chatViewModel)  // Use ChatViewModel here
             }
         }
 
         composable("biblioteca") {
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet {
-                        NavigationDrawer(navController, appViewModel) { destination ->
-                            scope.launch { drawerState.close() }
-                            navController.navigate(destination)
-                        }
-                    }
-                }
-            ) {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("Biblioteca") },
-                            navigationIcon = {
-                                IconButton(onClick = {
-                                    scope.launch { drawerState.open() }
-                                }) {
-                                    Icon(Icons.Default.Menu, contentDescription = "Menu")
-                                }
-                            }
-                        )
-                    },
-                    content = { padding ->
-                        BibliotecaScreen(navController, appViewModel)
-                    }
-                )
+            ModalScaffold(contentTitle = "Biblioteca") {
+                BibliotecaScreen(navController, appViewModel)
             }
         }
 
         composable("profile") {
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet {
-                        NavigationDrawer(navController, appViewModel) { destination ->
-                            scope.launch { drawerState.close() }
-                            navController.navigate(destination)
-                        }
-                    }
-                }
-            ) {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("Perfil") },
-                            navigationIcon = {
-                                IconButton(onClick = {
-                                    scope.launch { drawerState.open() }
-                                }) {
-                                    Icon(Icons.Default.Menu, contentDescription = "Menu")
-                                }
-                            }
-                        )
-                    },
-                    content = { padding ->
-                        ProfileScreen(navController, appViewModel)
-                    }
-                )
+            ModalScaffold(contentTitle = "Perfil") {
+                ProfileScreen(navController, appViewModel)
             }
         }
 
         composable("casos legales") {
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    NavigationDrawer(navController, appViewModel) { destination ->
-                        scope.launch { drawerState.close() }
-                        navController.navigate(destination)
-                    }
-                }
-            ) {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("Casos Legales") },
-                            navigationIcon = {
-                                IconButton(onClick = {
-                                    scope.launch { drawerState.open() }
-                                }) {
-                                    Icon(Icons.Default.Menu, contentDescription = "Menu")
-                                }
-                            }
-                        )
-                    },
-                    content = { padding ->
-                        LegalCasesScreen(navController, appViewModel)
-                    }
-                )
+            ModalScaffold(contentTitle = "Casos Legales") {
+                LegalCasesScreen(navController, appViewModel)
             }
         }
 
-        // Nueva Ruta: Búsqueda Abogados
         composable("busqueda abogados") {
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet {
-                        NavigationDrawer(navController, appViewModel) { destination ->
-                            scope.launch { drawerState.close() }
-                            navController.navigate(destination)
-                        }
-                    }
-                }
-            ) {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("Búsqueda Abogados") },
-                            navigationIcon = {
-                                IconButton(onClick = {
-                                    scope.launch { drawerState.open() }
-                                }) {
-                                    Icon(Icons.Default.Menu, contentDescription = "Menu")
-                                }
-                            }
-                        )
-                    },
-                    content = { padding ->
-                        BusquedaAbogadosScreen(navController, appViewModel)
-                    }
-                )
+            ModalScaffold(contentTitle = "Búsqueda Abogados") {
+                BusquedaAbogadosScreen(navController, appViewModel)
             }
         }
 
-        composable("perfil abogados") {
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet {
-                        NavigationDrawer(navController, appViewModel) { destination ->
-                            scope.launch { drawerState.close() }
-                            navController.navigate(destination)
-                        }
-                    }
-                }
-            ) {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("Perfil Abogados") },
-                            navigationIcon = {
-                                IconButton(onClick = {
-                                    scope.launch { drawerState.open() }
-                                }) {
-                                    Icon(Icons.Default.Menu, contentDescription = "Menu")
-                                }
-                            }
-                        )
-                    },
-                    content = { padding ->
-                        AbogadoProfileScreen(navController, appViewModel)
-                    }
-                )
-            }
-        }
-
-
-
-        // Nueva Ruta: Estado Caso
         composable("estado caso") {
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet {
-                        NavigationDrawer(navController, appViewModel) { destination ->
-                            scope.launch { drawerState.close() }
-                            navController.navigate(destination)
-                        }
-                    }
-                }
-            ) {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("Estado del Caso") },
-                            navigationIcon = {
-                                IconButton(onClick = {
-                                    scope.launch { drawerState.open() }
-                                }) {
-                                    Icon(Icons.Default.Menu, contentDescription = "Menu")
-                                }
-                            }
-                        )
-                    },
-                    content = { padding ->
-                        EstadoCasoScreen(navController, appViewModel)
-                    }
-                )
+            ModalScaffold(contentTitle = "Estado del Caso") {
+                EstadoCasoScreen(navController, appViewModel)
             }
         }
 
-
-        composable("legal_cases_screen") { LegalCasesScreen(navController, appViewModel) }
-
+        // Nueva ruta: InfoCasosLegalesScreen
         composable(
             "info_casos_legales/{expediente}/{cliente}/{abogadoAsignado}/{estado}/{descripcion}",
             arguments = listOf(
@@ -320,7 +141,7 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
                 navArgument("cliente") { type = NavType.StringType },
                 navArgument("abogadoAsignado") { type = NavType.StringType },
                 navArgument("estado") { type = NavType.StringType },
-                navArgument("descripcion") { type = NavType.StringType },
+                navArgument("descripcion") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             InfoCasosLegalesScreen(
@@ -329,8 +150,7 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
             )
         }
 
-
-        // Nueva ruta para la pantalla InfoAbogadosScreen
+        // Nueva ruta: InfoAbogadosScreen
         composable(
             "info_abogado/{nombre}/{especialidad}",
             arguments = listOf(
@@ -344,6 +164,10 @@ fun AppNavHost(appViewModel: UserViewModel, padding: Modifier) {
             )
         }
 
-
+        composable("perfil abogados") {
+            ModalScaffold(contentTitle = "Perfil Abogados") {
+                AbogadoProfileScreen(navController, appViewModel)
+            }
+        }
     }
 }
