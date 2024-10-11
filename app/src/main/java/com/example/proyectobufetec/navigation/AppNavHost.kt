@@ -1,5 +1,3 @@
-// com.example.proyectobufetec/navigation/AppNavHost.kt
-
 package com.example.proyectobufetec.navigation
 
 import ProfileScreen
@@ -29,6 +27,7 @@ import com.example.proyectobufetec.screens.abogado.LegalCasesScreen
 import com.example.proyectobufetec.screens.clientes.BusquedaAbogadosScreen
 import com.example.proyectobufetec.screens.clientes.EstadoCasoScreen
 import com.example.proyectobufetec.screens.clientes.InfoAbogadosScreen
+import com.example.proyectobufetec.viewmodel.AbogadoViewModel
 import com.example.proyectobufetec.viewmodel.UserViewModel
 import com.example.proyectobufetec.viewmodel.ChatViewModel
 import kotlinx.coroutines.launch
@@ -39,6 +38,7 @@ import kotlinx.coroutines.launch
 fun AppNavHost(
     appViewModel: UserViewModel,
     chatViewModel: ChatViewModel,  // Added ChatViewModel
+    abogadoViewModel: AbogadoViewModel,
     context: Context,  // Added context for login
     padding: Modifier
 ) {
@@ -123,7 +123,7 @@ fun AppNavHost(
 
         composable("busqueda abogados") {
             ModalScaffold(contentTitle = "Búsqueda Abogados") {
-                BusquedaAbogadosScreen(navController, appViewModel)
+                BusquedaAbogadosScreen(navController, abogadoViewModel)
             }
         }
 

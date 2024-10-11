@@ -1,4 +1,4 @@
-package com.example.proyectobufetec.data.repository
+package com.example.proyectobufetec.data.chatbot
 
 import android.util.Log
 import com.example.proyectobufetec.data.network.ChatApiService

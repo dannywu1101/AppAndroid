@@ -53,11 +53,9 @@ dependencies {
 
     //danny
     implementation(libs.androidx.navigation.compose)
-
     implementation (libs.retrofit)
     implementation (libs.logging.interceptor)
     implementation (libs.converter.gson)
-
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     //poty
@@ -66,11 +64,10 @@ dependencies {
 
     // memo
     implementation(libs.androidx.material3.v110alpha02)
-
+    implementation (libs.androidx.security.crypto.ktx.v110alpha03)
 
     // barra de busqueda?
     implementation(libs.material3)
-
 
     // ya estaban agregadas
     implementation(libs.androidx.core.ktx)
@@ -92,6 +89,4 @@ dependencies {
     // danny pruebas
     androidTestImplementation (libs.ui.test.junit4)
     debugImplementation (libs.ui.tooling)
-
-
 }

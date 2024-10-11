@@ -1,6 +1,7 @@
 package com.example.proyectobufetec.data.network
 
 import android.util.Log
+import com.example.proyectobufetec.data.abogado.AbogadoApiService
 import com.example.proyectobufetec.data.usuario.UsuarioApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -39,5 +40,11 @@ object RetrofitInstance {
     fun getUsuarioApi(authToken: String?): UsuarioApiService {
         Log.d("RetrofitInstance", "getUsuarioApi called with token: $authToken")
         return getRetrofit(authToken).create(UsuarioApiService::class.java)
+    }
+
+    // Service for Abogado API, with optional token support
+    fun getAbogadoApi(authToken: String?): AbogadoApiService {
+        Log.d("RetrofitInstance", "getAbogadoApi called with token: $authToken")
+        return getRetrofit(authToken).create(AbogadoApiService::class.java)
     }
 }

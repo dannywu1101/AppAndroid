@@ -1,5 +1,3 @@
-// com.example.proyectobufetec/screens/clientes/BusquedaAbogadosScreen.kt
-
 package com.example.proyectobufetec.screens.clientes
 
 import androidx.compose.foundation.background
@@ -13,39 +11,33 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.example.proyectobufetec.ui.theme.TecBlue
-import com.example.proyectobufetec.viewmodel.UserViewModel
-import kotlinx.coroutines.launch
+import com.example.proyectobufetec.viewmodel.AbogadoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BusquedaAbogadosScreen(navController: NavController, appViewModel: UserViewModel) {
+fun BusquedaAbogadosScreen(navController: NavController, abogadoViewModel: AbogadoViewModel) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedEspecialidad by remember { mutableStateOf("Todas") }
 
-    // Lista de abogados con su especialidad
-    val abogados = listOf(
-        "Juan Pérez" to "Divorcios",
-        "María González" to "Familiar",
-        "Carlos Hernández" to "Fiscal",
-        "Ana Rodríguez" to "Laboral"
-        // ...más abogados
-    )
+    val abogados by abogadoViewModel.abogados.collectAsState()
+    val isLoading by abogadoViewModel.isLoading.collectAsState()
+    val errorMessage by abogadoViewModel.errorMessage.collectAsState()
 
-    // Lista de especialidades
-    val especialidades = listOf("Todas", "Divorcios", "Laboral", "Familiar", "Fiscal")
+    // Fetch abogados when the screen loads
+    LaunchedEffect(Unit) {
+        abogadoViewModel.fetchAbogados()
+    }
 
     // Filtrado de abogados basado en la búsqueda y especialidad
-    val filteredAbogados = abogados.filter { (nombre, especialidad) ->
-        (nombre.contains(searchQuery, ignoreCase = true) || searchQuery.isEmpty()) &&
+    val filteredAbogados = abogados.filter { abogado ->
+        val especialidad = abogado.especialidad ?: ""
+        (especialidad.contains(searchQuery, ignoreCase = true) || searchQuery.isEmpty()) &&
                 (selectedEspecialidad == "Todas" || especialidad == selectedEspecialidad)
     }
 
@@ -54,74 +46,83 @@ fun BusquedaAbogadosScreen(navController: NavController, appViewModel: UserViewM
             .fillMaxSize()
             .padding(top = 90.dp, start = 16.dp, end = 16.dp)
     ) {
-        // Barra de búsqueda
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            label = { Text("Buscar abogados") },
-            modifier = Modifier
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp),
-            singleLine = true,
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Filtro de especialidad
-        DropdownEspecialidades(
-            especialidades = especialidades,
-            selectedEspecialidad = selectedEspecialidad,
-            onEspecialidadSelected = { selectedEspecialidad = it }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Encabezado con "Nombre" y "Especialidad"
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        } else if (errorMessage != null) {
             Text(
-                text = "Nombre",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
+                text = errorMessage ?: "Unknown error",
                 color = TecBlue,
-                modifier = Modifier.weight(2f)
+                modifier = Modifier.padding(16.dp),
+                textAlign = TextAlign.Center
             )
-            Text(
-                text = "Especialidad",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = TecBlue,
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.End
+        } else {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("Buscar abogados") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                singleLine = true,
             )
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Lista de abogados
-        Column(
-            modifier = Modifier
-                .verticalScroll(ScrollState(0))
-                .fillMaxHeight()
-        ) {
-            if (filteredAbogados.isEmpty()) {
+            DropdownEspecialidades(
+                especialidades = listOf("Todas", "Divorcios", "Laboral", "Familiar", "Fiscal"),
+                selectedEspecialidad = selectedEspecialidad,
+                onEspecialidadSelected = { selectedEspecialidad = it }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
-                    text = "No se encontraron resultados",
-                    modifier = Modifier.padding(16.dp),
+                    text = "Nombre",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
                     color = TecBlue,
-                    textAlign = TextAlign.Center
+                    modifier = Modifier.weight(2f)
                 )
-            } else {
-                filteredAbogados.forEach { (nombre, especialidad) ->
-                    AbogadoItem(nombre = nombre, especialidad = especialidad) {
-                        // Navegar a la pantalla de detalles del abogado
-                        navController.navigate("info_abogado/$nombre/$especialidad")
+                Text(
+                    text = "Especialidad",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TecBlue,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.End
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Column(
+                modifier = Modifier
+                    .verticalScroll(ScrollState(0))
+                    .fillMaxHeight()
+            ) {
+                if (filteredAbogados.isEmpty()) {
+                    Text(
+                        text = "No se encontraron resultados",
+                        modifier = Modifier.padding(16.dp),
+                        color = TecBlue,
+                        textAlign = TextAlign.Center
+                    )
+                } else {
+                    filteredAbogados.forEach { abogado ->
+                        AbogadoItem(
+                            nombre = abogado.nombre,
+                            especialidad = abogado.especialidad ?: "Desconocida"  // Handle null value for especialidad
+                        ) {
+                            // Navegar a la pantalla de detalles del abogado
+                            navController.navigate("info_abogado/${abogado.nombre}/${abogado.especialidad ?: "Desconocida"}")
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
         }
@@ -129,7 +130,6 @@ fun BusquedaAbogadosScreen(navController: NavController, appViewModel: UserViewM
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
-
 
 @Composable
 fun DropdownEspecialidades(

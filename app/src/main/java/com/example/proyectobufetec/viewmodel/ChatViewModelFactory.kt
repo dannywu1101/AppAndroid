@@ -3,7 +3,7 @@ package com.example.proyectobufetec.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.proyectobufetec.data.repository.ChatRepository
+import com.example.proyectobufetec.data.chatbot.ChatRepository
 
 class ChatViewModelFactory(
     private val chatRepository: ChatRepository,
