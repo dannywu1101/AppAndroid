@@ -11,24 +11,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
-import com.example.proyectobufetec.data.usuario.LoginRequest
-import com.example.proyectobufetec.data.usuario.LoginUserState
-import com.example.proyectobufetec.data.usuario.RegisterRequest
-import com.example.proyectobufetec.data.usuario.UsuarioApiService
+import com.example.proyectobufetec.data.usuario.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class UserViewModel(
     private val usuarioApiService: UsuarioApiService,
-    private val context: Context  // Pass context to access SharedPreferences
+    private val context: Context
 ) : ViewModel() {
 
-    // Define state variables for email and password
+    // User credentials state
     var email by mutableStateOf("")
     var password by mutableStateOf("")
 
-    // States for login and register processes
+    // State management
     private val _loginState = MutableStateFlow<LoginUserState>(LoginUserState.Initial)
     val loginState: StateFlow<LoginUserState> = _loginState
 
@@ -50,26 +47,29 @@ class UserViewModel(
         )
     }
 
-    // Function to save token in EncryptedSharedPreferences
+    // Save token in EncryptedSharedPreferences
     private fun saveAuthToken(token: String) {
         val sharedPreferences = getEncryptedSharedPreferences()
         sharedPreferences.edit().putString("auth_token", token).apply()
     }
 
-    // Login user function that handles TokenResponse and saves the token
+    // Retrieve token from EncryptedSharedPreferences
+    fun getAuthToken(): String? {
+        val sharedPreferences = getEncryptedSharedPreferences()
+        return sharedPreferences.getString("auth_token", null)
+    }
+
+    // Login function with token handling
     fun loginUser(user: LoginRequest) {
-        _loginState.value = LoginUserState.Initial
+        _loginState.value = LoginUserState.Loading
         viewModelScope.launch {
             try {
-                _loginState.value = LoginUserState.Loading
                 val response = usuarioApiService.login(user)
                 if (response.isSuccessful) {
-                    val tokenResponse = response.body()
-                    _loginState.value = LoginUserState.Success(tokenResponse!!)
+                    val tokenResponse = response.body()!!
+                    saveAuthToken(tokenResponse.token)  // Save token
                     setUserLogged(true)
-
-                    // Save the token to EncryptedSharedPreferences
-                    saveAuthToken(tokenResponse.token)
+                    _loginState.value = LoginUserState.Success(tokenResponse)
                 } else {
                     _loginState.value = LoginUserState.Error("Login failed: ${response.message()}")
                 }
@@ -79,19 +79,16 @@ class UserViewModel(
         }
     }
 
-    // Register user function that handles TokenResponse and saves the token
+    // Register user and handle token saving
     fun registerUser(user: RegisterRequest) {
+        _registerState.value = RegisterUserState.Loading
         viewModelScope.launch {
             try {
-                _registerState.value = RegisterUserState.Loading
                 val response = usuarioApiService.register(user)
-
                 if (response.isSuccessful) {
-                    val tokenResponse = response.body()
-                    _registerState.value = RegisterUserState.Success(tokenResponse!!)
-
-                    // Save the token to EncryptedSharedPreferences
-                    saveAuthToken(tokenResponse.token)
+                    val tokenResponse = response.body()!!
+                    saveAuthToken(tokenResponse.token)  // Save token
+                    _registerState.value = RegisterUserState.Success(tokenResponse)
                 } else {
                     _registerState.value = RegisterUserState.Error("Registration failed: ${response.message()}")
                 }
@@ -101,14 +98,29 @@ class UserViewModel(
         }
     }
 
-    // Set user logged status
+    // Set user logged state
     fun setUserLogged(isLogged: Boolean) {
         _isUserLogged.value = isLogged
     }
 
-    // Retrieve the token when needed
-    fun getAuthToken(): String? {
-        val sharedPreferences = getEncryptedSharedPreferences()
-        return sharedPreferences.getString("auth_token", null)
+    // Verify the token and update user login status
+    fun verifyToken() {
+        val token = getAuthToken()
+        if (token != null) {
+            viewModelScope.launch {
+                try {
+                    val response = usuarioApiService.verifyToken("Bearer $token")
+                    if (response.isSuccessful) {
+                        setUserLogged(true)
+                    } else {
+                        setUserLogged(false)
+                    }
+                } catch (e: Exception) {
+                    setUserLogged(false)
+                }
+            }
+        } else {
+            setUserLogged(false)
+        }
     }
 }

@@ -1,9 +1,6 @@
 package com.example.proyectobufetec.service
 
-import com.example.proyectobufetec.data.usuario.LoginRequest
-import com.example.proyectobufetec.data.usuario.RegisterRequest
-import com.example.proyectobufetec.data.usuario.TokenResponse
-import com.example.proyectobufetec.data.usuario.UsuarioApiService
+import com.example.proyectobufetec.data.usuario.*
 import retrofit2.Response
 
 // Fake implementation of UserService for testing purposes
@@ -25,6 +22,16 @@ class FakeUserService : UsuarioApiService {
             TokenResponse(
                 message = "Fake login successful",
                 token = "fake_token_for_login"
+            )
+        )
+    }
+
+    override suspend fun verifyToken(token: String): Response<VerifyTokenResponse> {
+        // Return a fake success response indicating the token is valid
+        return Response.success(
+            VerifyTokenResponse(
+                message = "Token is valid",
+                user = User(id = 1, email = "test@example.com", role = "User")
             )
         )
     }

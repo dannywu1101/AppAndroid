@@ -1,3 +1,5 @@
+// com.example.proyectobufetec.screens.LoginScreen.kt
+
 package com.example.proyectobufetec.screens
 
 import android.annotation.SuppressLint
@@ -16,30 +18,47 @@ import com.example.proyectobufetec.R
 import com.example.proyectobufetec.viewmodel.UserViewModel
 import com.example.proyectobufetec.data.usuario.LoginUserState
 import com.example.proyectobufetec.data.usuario.LoginRequest
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun LoginScreen(navController: NavController, userViewModel: UserViewModel, context: Context) {
+fun LoginScreen(
+    navController: NavController,
+    userViewModel: UserViewModel,
+    context: Context
+) {
     val snackbarHostState = remember { SnackbarHostState() }
     val loginState by userViewModel.loginState.collectAsState()
+    val isUserLogged by userViewModel.isUserLogged.collectAsState() // Collecting the user logged state
 
-    // Access email and password directly from the ViewModel
-    val email = userViewModel.email
-    val password = userViewModel.password
+    // Access email and password from the ViewModel
+    val email by remember { mutableStateOf(userViewModel.email) }
+    val password by remember { mutableStateOf(userViewModel.password) }
 
+    // Verify token on launch
+    LaunchedEffect(Unit) {
+        userViewModel.verifyToken() // Trigger token verification
+    }
+
+    // Navigate to home if the user is logged in
+    LaunchedEffect(isUserLogged) {
+        if (isUserLogged) {
+            navController.navigate("home") {
+                popUpTo("login") { inclusive = true } // Clear the backstack
+            }
+        }
+    }
+
+    // Handle login state changes
     LaunchedEffect(loginState) {
         when (val login = loginState) {
             is LoginUserState.Loading -> {
-                // Show loading if needed
+                // Optionally show a loading UI
             }
             is LoginUserState.Success -> {
-                // Save the token to EncryptedSharedPreferences
-                saveAuthToken(context, login.tokenResponse.token)
-
+                navController.navigate("home") {
+                    popUpTo("login") { inclusive = true }
+                }
                 snackbarHostState.showSnackbar("Login exitoso")
-                navController.navigate("home")
             }
             is LoginUserState.Error -> {
                 snackbarHostState.showSnackbar(login.errorMessage)
@@ -69,32 +88,33 @@ fun LoginScreen(navController: NavController, userViewModel: UserViewModel, cont
                 modifier = Modifier.size(300.dp)
             )
 
-            // Campo de texto para correo
+            Spacer(modifier = Modifier.height(16.dp))
+
             TextField(
                 value = email,
-                onValueChange = { userViewModel.email = it }, // Directly updating the ViewModel
+                onValueChange = { userViewModel.email = it },
                 label = { Text("Correo") },
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Campo de texto para contraseña
+            Spacer(modifier = Modifier.height(8.dp))
+
             TextField(
                 value = password,
-                onValueChange = { userViewModel.password = it }, // Directly updating the ViewModel
+                onValueChange = { userViewModel.password = it },
                 label = { Text("Contraseña") },
-                modifier = Modifier.fillMaxWidth(),
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón de iniciar sesión
             Button(
                 onClick = {
                     userViewModel.loginUser(
                         LoginRequest(
-                            email = email,       // Use the email from the ViewModel
-                            contrasena = password // Use the password from the ViewModel
+                            email = email,
+                            contrasena = password
                         )
                     )
                 },
@@ -105,14 +125,12 @@ fun LoginScreen(navController: NavController, userViewModel: UserViewModel, cont
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón de registrar nueva cuenta
             TextButton(onClick = { navController.navigate("register") }) {
                 Text("Registrar nueva cuenta")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón de iniciar como invitado
             Button(
                 onClick = { navController.navigate("home") },
                 modifier = Modifier.fillMaxWidth()
@@ -120,7 +138,8 @@ fun LoginScreen(navController: NavController, userViewModel: UserViewModel, cont
                 Text("Ingresar como invitado")
             }
 
-            // Indicador de carga
+            Spacer(modifier = Modifier.height(16.dp))
+
             Loading(loginState)
         }
     }
@@ -128,33 +147,14 @@ fun LoginScreen(navController: NavController, userViewModel: UserViewModel, cont
 
 @Composable
 private fun Loading(loginState: LoginUserState) {
-    when (loginState) {
-        is LoginUserState.Loading -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
+    if (loginState is LoginUserState.Loading) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
         }
-        else -> {}
     }
-}
-
-// Function to save the token to EncryptedSharedPreferences
-private fun saveAuthToken(context: Context, token: String) {
-    val masterKey = MasterKey.Builder(context)
-        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-        .build()
-
-    val sharedPreferences = EncryptedSharedPreferences.create(
-        context,
-        "secure_prefs",
-        masterKey,
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-    )
-
-    sharedPreferences.edit().putString("auth_token", token).apply()
 }
