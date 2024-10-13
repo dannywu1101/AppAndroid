@@ -1,3 +1,5 @@
+// com.example.proyectobufetec.screens.clientes.BibliotecaScreen
+
 package com.example.proyectobufetec.screens.clientes
 
 import android.content.Intent
@@ -48,7 +50,6 @@ fun BibliotecaScreen(navController: NavController, bibliotecaViewModel: Bibliote
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Display loading spinner or error message
         if (isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         } else if (errorMessage != null) {
@@ -73,7 +74,7 @@ fun BibliotecaScreen(navController: NavController, bibliotecaViewModel: Bibliote
 
             // Filter files based on the search query
             val filteredFiles = files.filter {
-                it.fileName.contains(searchQuery, ignoreCase = true) ||
+                it.titulo.contains(searchQuery, ignoreCase = true) ||
                         it.descripcion.contains(searchQuery, ignoreCase = true)
             }
 
@@ -81,8 +82,8 @@ fun BibliotecaScreen(navController: NavController, bibliotecaViewModel: Bibliote
             LazyColumn {
                 items(filteredFiles) { file ->
                     BibliotecaItem(
-                        fileName = file.fileName,
-                        description = file.descripcion,
+                        titulo = file.titulo,
+                        descripcion = file.descripcion,
                         link = file.presignedUrl,
                         context = context
                     )
@@ -94,7 +95,7 @@ fun BibliotecaScreen(navController: NavController, bibliotecaViewModel: Bibliote
 }
 
 @Composable
-fun BibliotecaItem(fileName: String, description: String, link: String, context: android.content.Context) {
+fun BibliotecaItem(titulo: String, descripcion: String, link: String, context: android.content.Context) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -103,9 +104,8 @@ fun BibliotecaItem(fileName: String, description: String, link: String, context:
             .background(Color.White, RoundedCornerShape(8.dp))
             .padding(16.dp)
     ) {
-        // File name with link style
         Text(
-            text = fileName,
+            text = titulo,
             color = TecBlue,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
@@ -113,14 +113,12 @@ fun BibliotecaItem(fileName: String, description: String, link: String, context:
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
-                    // Open the link in the browser
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
                     context.startActivity(intent)
                 }
         )
-        // Description below the file name
         Text(
-            text = description,
+            text = descripcion,
             fontSize = 14.sp,
             color = Color.Gray,
             modifier = Modifier.padding(top = 4.dp)
