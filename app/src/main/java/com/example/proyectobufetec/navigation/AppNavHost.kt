@@ -28,8 +28,10 @@ import com.example.proyectobufetec.screens.clientes.BusquedaAbogadosScreen
 import com.example.proyectobufetec.screens.clientes.EstadoCasoScreen
 import com.example.proyectobufetec.screens.clientes.InfoAbogadosScreen
 import com.example.proyectobufetec.viewmodel.AbogadoViewModel
+import com.example.proyectobufetec.viewmodel.BibliotecaViewModel
 import com.example.proyectobufetec.viewmodel.UserViewModel
 import com.example.proyectobufetec.viewmodel.ChatViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -39,6 +41,7 @@ fun AppNavHost(
     appViewModel: UserViewModel,
     chatViewModel: ChatViewModel,  // Added ChatViewModel
     abogadoViewModel: AbogadoViewModel,
+    bibliotecaViewModel: BibliotecaViewModel,
     context: Context,  // Added context for login
     padding: Modifier
 ) {
@@ -105,7 +108,7 @@ fun AppNavHost(
 
         composable("biblioteca") {
             ModalScaffold(contentTitle = "Biblioteca") {
-                BibliotecaScreen(navController, appViewModel)
+                BibliotecaScreen(navController, bibliotecaViewModel)
             }
         }
 

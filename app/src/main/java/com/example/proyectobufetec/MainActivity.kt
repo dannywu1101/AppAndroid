@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectobufetec.data.network.RetrofitInstance
 import com.example.proyectobufetec.navigation.AppNavHost
 import com.example.proyectobufetec.ui.theme.NavTemplateTheme
@@ -18,10 +19,13 @@ import com.example.proyectobufetec.viewmodel.ChatViewModel
 import com.example.proyectobufetec.viewmodel.ChatViewModelFactory
 import com.example.proyectobufetec.viewmodel.AbogadoViewModel
 import com.example.proyectobufetec.viewmodel.AbogadoViewModelFactory
+import com.example.proyectobufetec.viewmodel.BibliotecaViewModel
+import com.example.proyectobufetec.viewmodel.BibliotecaViewModelFactory
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.example.proyectobufetec.data.chatbot.ChatRepository
 import com.example.proyectobufetec.data.abogado.AbogadoRepository
+import com.example.proyectobufetec.data.biblioteca.BibliotecaRepository
 
 class MainActivity : ComponentActivity() {
 
@@ -36,7 +40,7 @@ class MainActivity : ComponentActivity() {
         // Retrieve the token from EncryptedSharedPreferences
         val token = getTokenFromEncryptedPrefs()
 
-        // Initialize UserViewModel using the token for authenticated calls
+        // Initialize UserViewModel
         val usuarioApiService = RetrofitInstance.getUsuarioApi(token)
         val userFactory = UserViewModelFactory(usuarioApiService, this)
         userViewModel = ViewModelProvider(this, userFactory).get(UserViewModel::class.java)
@@ -48,10 +52,16 @@ class MainActivity : ComponentActivity() {
         chatViewModel = ViewModelProvider(this, chatFactory).get(ChatViewModel::class.java)
 
         // Initialize AbogadoViewModel
-        val abogadoApiService = RetrofitInstance.getAbogadoApi(token)  // Add this service in RetrofitInstance
+        val abogadoApiService = RetrofitInstance.getAbogadoApi(token)
         val abogadoRepository = AbogadoRepository(abogadoApiService)
         val abogadoFactory = AbogadoViewModelFactory(abogadoRepository, this)
         abogadoViewModel = ViewModelProvider(this, abogadoFactory).get(AbogadoViewModel::class.java)
+
+        // Initialize BibliotecaViewModel
+        val bibliotecaApiService = RetrofitInstance.getBibliotecaApi(token)
+        val bibliotecaRepository = BibliotecaRepository(bibliotecaApiService)
+        val bibliotecaFactory = BibliotecaViewModelFactory(bibliotecaRepository)
+        val bibliotecaViewModel = ViewModelProvider(this, bibliotecaFactory).get(BibliotecaViewModel::class.java)
 
         setContent {
             NavTemplateTheme {
@@ -59,7 +69,8 @@ class MainActivity : ComponentActivity() {
                     AppNavHost(
                         appViewModel = userViewModel,
                         chatViewModel = chatViewModel,
-                        abogadoViewModel = abogadoViewModel,  // Pass the AbogadoViewModel
+                        abogadoViewModel = abogadoViewModel,
+                        bibliotecaViewModel = bibliotecaViewModel,
                         context = this,
                         padding = Modifier.padding(innerPadding)
                     )
