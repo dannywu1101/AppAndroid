@@ -20,9 +20,9 @@ data class CasoResponseAbogado(
 )
 
 data class CasoFile(
-    val id: Int,
-    val presignedUrl: String,
-    val fileName: String
+    val titulo: String,
+    val descripcion: String,
+    val presignedUrl: String
 )
 
 interface CasoApiService {

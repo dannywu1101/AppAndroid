@@ -3,14 +3,12 @@ package com.example.proyectobufetec.screens.abogado
 import android.content.Intent
 import android.net.Uri
 import android.content.Context
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -43,99 +41,72 @@ fun LegalCasesScreen(
         casoViewModel.fetchAbogadoCasos()
     }
 
-    // Use LazyColumn as the main container
-    LazyColumn(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 90.dp, start = 16.dp, end = 16.dp)
+            .padding(16.dp)
     ) {
-        item {
+        Column {
+            // Search bar
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Buscar casos") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                shape = RoundedCornerShape(8.dp),
-                singleLine = true
+                    .padding(bottom = 16.dp)
             )
-        }
 
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Expediente",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TecBlue,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = "Nombre de Cliente",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TecBlue,
-                    modifier = Modifier.weight(2f),
-                    textAlign = TextAlign.End
-                )
-            }
             Spacer(modifier = Modifier.height(8.dp))
-        }
 
-        if (isLoading) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-        } else if (errorMessage != null) {
-            item {
-                Text(
-                    text = errorMessage ?: "Unknown error",
-                    color = TecBlue,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    textAlign = TextAlign.Center
-                )
-            }
-        } else {
-            val filteredCases = abogadoCasos.filter {
-                it.numero_expediente.contains(searchQuery, ignoreCase = true) || searchQuery.isEmpty()
-            }
-
-            if (filteredCases.isEmpty()) {
-                item {
-                    Text(
-                        text = "No se encontraron resultados",
+            when {
+                isLoading -> {
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                errorMessage != null -> {
+                    Text(
+                        text = errorMessage ?: "Unknown error",
                         color = TecBlue,
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
                         textAlign = TextAlign.Center
                     )
                 }
-            } else {
-                items(filteredCases) { legalCase ->
-                    LegalCaseItem(
-                        expediente = legalCase.numero_expediente,
-                        nombre = legalCase.clienteName,
-                        casoId = legalCase.id,
-                        casoViewModel = casoViewModel,
-                        context = LocalContext.current
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
+                else -> {
+                    // Filtered cases and LazyColumn for scrolling content
+                    val filteredCases = abogadoCasos.filter {
+                        it.numero_expediente.contains(searchQuery, ignoreCase = true) ||
+                                searchQuery.isEmpty()
+                    }
+
+                    if (filteredCases.isEmpty()) {
+                        Text(
+                            text = "No se encontraron resultados",
+                            color = TecBlue,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(filteredCases) { legalCase ->
+                                LegalCaseItem(
+                                    expediente = legalCase.numero_expediente,
+                                    nombre = legalCase.clienteName,
+                                    casoId = legalCase.id,
+                                    casoViewModel = casoViewModel,
+                                    context = LocalContext.current
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -156,7 +127,7 @@ fun LegalCaseItem(
     val errorMessage by casoViewModel.errorMessage.collectAsState()
 
     LaunchedEffect(isExpanded) {
-        if (isExpanded) {
+        if (isExpanded && casoFiles.isEmpty() && !isLoading) {
             casoViewModel.fetchCasoFiles(casoId)
         }
     }
@@ -168,13 +139,10 @@ fun LegalCaseItem(
             .shadow(8.dp, RoundedCornerShape(8.dp))
             .background(TecBlue, RoundedCornerShape(8.dp))
             .padding(16.dp)
-            .clickable { isExpanded = !isExpanded },
-        verticalArrangement = Arrangement.Center
+            .clickable { isExpanded = !isExpanded }
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -188,38 +156,43 @@ fun LegalCaseItem(
                 text = nombre,
                 fontSize = 18.sp,
                 color = White,
-                modifier = Modifier.weight(2f),
-                textAlign = TextAlign.End
+                textAlign = TextAlign.End,
+                modifier = Modifier.weight(2f)
             )
         }
 
         if (isExpanded) {
             Spacer(modifier = Modifier.height(8.dp))
 
-            if (isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+            when {
+                isLoading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
                 }
-            } else if (errorMessage != null) {
-                Text(
-                    text = errorMessage ?: "Unknown error",
-                    color = White,
-                    textAlign = TextAlign.Center
-                )
-            } else {
-                LazyColumn {
-                    items(casoFiles) { file ->
-                        CasoFileItem(
-                            fileName = file.fileName,
-                            link = file.presignedUrl,
-                            context = context
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
+                errorMessage != null -> {
+                    Text(
+                        text = errorMessage ?: "Unknown error",
+                        color = White,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                casoFiles.isEmpty() -> {
+                    Text(
+                        text = "No files available for this case.",
+                        color = White,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                else -> {
+                    LazyColumn {
+                        items(casoFiles) { file ->
+                            CasoFileItem(
+                                titulo = file.titulo,
+                                descripcion = file.descripcion,
+                                link = file.presignedUrl,
+                                context = context
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
                     }
                 }
             }
@@ -228,7 +201,7 @@ fun LegalCaseItem(
 }
 
 @Composable
-fun CasoFileItem(fileName: String, link: String, context: Context) {
+fun CasoFileItem(titulo: String, descripcion: String, link: String, context: Context) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -238,7 +211,7 @@ fun CasoFileItem(fileName: String, link: String, context: Context) {
             .padding(16.dp)
     ) {
         Text(
-            text = fileName,
+            text = titulo,
             color = TecBlue,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
@@ -249,6 +222,12 @@ fun CasoFileItem(fileName: String, link: String, context: Context) {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
                     context.startActivity(intent)
                 }
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = descripcion,
+            fontSize = 14.sp,
+            color = Color.Gray
         )
     }
 }
