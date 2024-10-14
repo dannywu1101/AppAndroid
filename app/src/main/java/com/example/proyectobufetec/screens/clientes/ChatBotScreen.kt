@@ -27,10 +27,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun ChatBotScreen(navController: NavController, chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
-    val messageList = remember { mutableStateListOf<Message>(
-        Message("¡Hola! Soy tu asistente virtual, ¿en qué puedo ayudarte hoy?", isUser = false)
-    ) }
+fun ChatBotScreen(
+    navController: NavController,
+    chatViewModel: ChatViewModel,
+    modifier: Modifier = Modifier
+) {
+    val messageList = remember {
+        mutableStateListOf(
+            Message("¡Hola! Soy tu asistente virtual, ¿en qué puedo ayudarte hoy?", isUser = false)
+        )
+    }
 
     var userInput by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
@@ -38,6 +44,7 @@ fun ChatBotScreen(navController: NavController, chatViewModel: ChatViewModel, mo
 
     val chatResponse by chatViewModel.chatBotResponse.collectAsState()
 
+    // Observe chat responses and add to the message list
     LaunchedEffect(chatResponse) {
         if (chatResponse.isNotEmpty()) {
             messageList.add(Message(chatResponse, isUser = false))
@@ -51,16 +58,14 @@ fun ChatBotScreen(navController: NavController, chatViewModel: ChatViewModel, mo
             .background(Color(0xFFF9F9F9))
             .padding(16.dp)
     ) {
+        // Display chat messages
         Box(
             modifier = Modifier
                 .height(350.dp)
                 .background(Color(0xFFF0F0F5), shape = RoundedCornerShape(12.dp))
                 .padding(16.dp)
         ) {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.fillMaxSize()
-            ) {
+            LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
                 items(messageList) { message ->
                     ChatBubble(message)
                 }
@@ -69,6 +74,7 @@ fun ChatBotScreen(navController: NavController, chatViewModel: ChatViewModel, mo
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Input field for user message
         TextField(
             value = userInput,
             onValueChange = { userInput = it },
@@ -77,9 +83,6 @@ fun ChatBotScreen(navController: NavController, chatViewModel: ChatViewModel, mo
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 focusedLabelColor = Color(0xFF003366),
-                unfocusedLabelColor = Color(0xFF666666),
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
                 cursorColor = Color(0xFF003366)
             ),
             modifier = Modifier
@@ -89,6 +92,7 @@ fun ChatBotScreen(navController: NavController, chatViewModel: ChatViewModel, mo
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Send button to send message
         Button(
             onClick = {
                 if (userInput.isNotEmpty()) {
@@ -99,53 +103,11 @@ fun ChatBotScreen(navController: NavController, chatViewModel: ChatViewModel, mo
                 }
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF003366)),
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
         ) {
-            Text(text = "ENVIAR", color = Color.White, style = MaterialTheme.typography.titleMedium)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "DESCUBRE NUEVAS POSIBILIDADES",
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp),
-            color = Color(0xFF003366)
-        )
-
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(8.dp),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                SquareButtonWithIcon(
-                    title = "BIBLIOTECA",
-                    icon = Icons.Default.Book,
-                    description = "Consulta libros y documentos disponibles en nuestra biblioteca.",
-                    onClick = {
-                        navController.navigate("biblioteca")
-                    }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(8.dp),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                SquareButtonWithIcon(
-                    title = "CASOS LEGALES",
-                    icon = Icons.Default.Gavel,
-                    description = "Accede a información sobre casos legales relevantes.",
-                    onClick = {
-                        navController.navigate("casos legales")
-                    }
-                )
-            }
+            Text("ENVIAR", color = Color.White)
         }
     }
 }

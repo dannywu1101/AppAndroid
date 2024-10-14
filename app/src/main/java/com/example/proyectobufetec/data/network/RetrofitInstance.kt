@@ -1,8 +1,10 @@
 package com.example.proyectobufetec.data.network
 
+import android.content.Context
 import android.util.Log
 import com.example.proyectobufetec.data.abogado.AbogadoApiService
 import com.example.proyectobufetec.data.biblioteca.BibliotecaApiService
+import com.example.proyectobufetec.data.caso.CasoApiService
 import com.example.proyectobufetec.data.usuario.UsuarioApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -17,11 +19,17 @@ object RetrofitInstance {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    // Function to create a Retrofit instance with an optional auth token
-    private fun getRetrofit(authToken: String?): Retrofit {
+    private var retrofit: Retrofit? = null
+
+    fun initialize(context: Context) {
+        TokenManager.initialize(context)
+        rebuildRetrofit()
+    }
+
+    private fun buildRetrofit(): Retrofit {
         val client = OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)
-            .addInterceptor(AuthInterceptor(authToken))  // Add the custom AuthInterceptor
+            .addInterceptor(loggingInterceptor) // Ensure logging is working
+            .addInterceptor(AuthInterceptor(TokenManager))
             .build()
 
         return Retrofit.Builder()
@@ -31,25 +39,18 @@ object RetrofitInstance {
             .build()
     }
 
-    // Service for Chat API, which now requires token support
-    fun getChatApi(authToken: String?): ChatApiService {
-        Log.d("RetrofitInstance", "getChatApi called with token: $authToken")
-        return getRetrofit(authToken).create(ChatApiService::class.java)
+    private fun getRetrofit(): Retrofit {
+        return retrofit ?: buildRetrofit().also { retrofit = it }
     }
 
-    // Service for Usuario API, with optional token support
-    fun getUsuarioApi(authToken: String?): UsuarioApiService {
-        Log.d("RetrofitInstance", "getUsuarioApi called with token: $authToken")
-        return getRetrofit(authToken).create(UsuarioApiService::class.java)
+    fun rebuildRetrofit() {
+        Log.d("RetrofitInstance", "Rebuilding Retrofit instance")
+        retrofit = buildRetrofit()
     }
 
-    // Service for Abogado API, with optional token support
-    fun getAbogadoApi(authToken: String?): AbogadoApiService {
-        Log.d("RetrofitInstance", "getAbogadoApi called with token: $authToken")
-        return getRetrofit(authToken).create(AbogadoApiService::class.java)
-    }
-
-    fun getBibliotecaApi(authToken: String?): BibliotecaApiService {
-        return getRetrofit(authToken).create(BibliotecaApiService::class.java)
-    }
+    fun getUsuarioApi(): UsuarioApiService = getRetrofit().create(UsuarioApiService::class.java)
+    fun getChatApi(): ChatApiService = getRetrofit().create(ChatApiService::class.java)
+    fun getAbogadoApi(): AbogadoApiService = getRetrofit().create(AbogadoApiService::class.java)
+    fun getBibliotecaApi(): BibliotecaApiService = getRetrofit().create(BibliotecaApiService::class.java)
+    fun getCasoApi(): CasoApiService = getRetrofit().create(CasoApiService::class.java)
 }

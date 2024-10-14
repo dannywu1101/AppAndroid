@@ -18,6 +18,8 @@ import com.example.proyectobufetec.R
 import com.example.proyectobufetec.viewmodel.UserViewModel
 import com.example.proyectobufetec.data.usuario.LoginUserState
 import com.example.proyectobufetec.data.usuario.LoginRequest
+import com.example.proyectobufetec.viewmodel.AuthState
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -27,126 +29,137 @@ fun LoginScreen(
     context: Context
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val loginState by userViewModel.loginState.collectAsState()
-    val isUserLogged by userViewModel.isUserLogged.collectAsState() // Collecting the user logged state
+    val scope = rememberCoroutineScope()
+    val authState by userViewModel.authState.collectAsState()
 
-    // Access email and password from the ViewModel
-    val email by remember { mutableStateOf(userViewModel.email) }
-    val password by remember { mutableStateOf(userViewModel.password) }
-
-    // Verify token on launch
-    LaunchedEffect(Unit) {
-        userViewModel.verifyToken() // Trigger token verification
-    }
-
-    // Navigate to home if the user is logged in
-    LaunchedEffect(isUserLogged) {
-        if (isUserLogged) {
-            navController.navigate("home") {
-                popUpTo("login") { inclusive = true } // Clear the backstack
-            }
-        }
-    }
-
-    // Handle login state changes
-    LaunchedEffect(loginState) {
-        when (val login = loginState) {
-            is LoginUserState.Loading -> {
-                // Optionally show a loading UI
-            }
-            is LoginUserState.Success -> {
+    // Ensure safe navigation after the NavHost is ready
+    LaunchedEffect(authState) {
+        when (authState) {
+            is AuthState.Success -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Login exitoso")
+                }
+                // Navigate safely after the composition is ready
                 navController.navigate("home") {
                     popUpTo("login") { inclusive = true }
                 }
-                snackbarHostState.showSnackbar("Login exitoso")
             }
-            is LoginUserState.Error -> {
-                snackbarHostState.showSnackbar(login.errorMessage)
+            is AuthState.Error -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar((authState as AuthState.Error).message)
+                }
             }
-            else -> {}
+            else -> Unit
         }
     }
 
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.padding(16.dp)
-            )
-        }
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.bufetec),
-                contentDescription = "Logo de Bufetec",
-                modifier = Modifier.size(300.dp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            TextField(
-                value = email,
-                onValueChange = { userViewModel.email = it },
-                label = { Text("Correo") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            TextField(
-                value = password,
-                onValueChange = { userViewModel.password = it },
-                label = { Text("Contraseña") },
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    userViewModel.loginUser(
-                        LoginRequest(
-                            email = email,
-                            contrasena = password
-                        )
-                    )
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Ingresar")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            TextButton(onClick = { navController.navigate("register") }) {
-                Text("Registrar nueva cuenta")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = { navController.navigate("home") },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Ingresar como invitado")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Loading(loginState)
-        }
+        LoginContent(
+            email = userViewModel.email.collectAsState().value,
+            password = userViewModel.password.collectAsState().value,
+            onEmailChange = userViewModel::onEmailChange,
+            onPasswordChange = userViewModel::onPasswordChange,
+            onLoginClick = { email, password ->
+                scope.launch {
+                    if (email.isNotBlank() && password.isNotBlank()) {
+                        userViewModel.loginUser(LoginRequest(email, password))
+                    } else {
+                        snackbarHostState.showSnackbar("Por favor, complete ambos campos.")
+                    }
+                }
+            },
+            onGuestLogin = {
+                navController.navigate("home") {
+                    popUpTo("login") { inclusive = true }
+                }
+            },
+            onRegisterClick = {
+                navController.navigate("register")
+            },
+            isLoading = authState is AuthState.Loading
+        )
     }
 }
 
 @Composable
-private fun Loading(loginState: LoginUserState) {
+private fun LoginContent(
+    email: String,
+    password: String,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onLoginClick: (String, String) -> Unit,
+    onGuestLogin: () -> Unit,
+    onRegisterClick: () -> Unit,
+    isLoading: Boolean
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.bufetec),
+            contentDescription = "Logo de Bufetec",
+            modifier = Modifier.size(300.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        TextField(
+            value = email,
+            onValueChange = onEmailChange,
+            label = { Text("Correo") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        TextField(
+            value = password,
+            onValueChange = onPasswordChange,
+            label = { Text("Contraseña") },
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { onLoginClick(email, password) },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !isLoading
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+            } else {
+                Text("Ingresar")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        TextButton(onClick = onRegisterClick) {
+            Text("Registrar nueva cuenta")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = onGuestLogin,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Ingresar como invitado")
+        }
+    }
+}
+
+
+@Composable
+private fun LoadingIndicator(loginState: LoginUserState) {
     if (loginState is LoginUserState.Loading) {
         Box(
             modifier = Modifier

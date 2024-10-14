@@ -1,17 +1,17 @@
 package com.example.proyectobufetec.viewmodel
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.proyectobufetec.data.chatbot.ChatRepository
+import com.example.proyectobufetec.data.caso.CasoRepository
 
-class ChatViewModelFactory(
-    private val chatRepository: ChatRepository,
+class CasoViewModelFactory(
+    private val casoRepository: CasoRepository
 ) : ViewModelProvider.Factory {
+
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ChatViewModel::class.java)) {
-            return ChatViewModel(chatRepository) as T  // Pass context to the ViewModel
+        if (modelClass.isAssignableFrom(CasoViewModel::class.java)) {
+            return CasoViewModel(casoRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

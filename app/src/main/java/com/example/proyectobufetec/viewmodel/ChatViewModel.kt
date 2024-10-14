@@ -1,34 +1,36 @@
 package com.example.proyectobufetec.viewmodel
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import com.example.proyectobufetec.data.chatbot.ChatRepository
+import com.example.proyectobufetec.data.network.TokenManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import android.util.Log
 
-class ChatViewModel(private val chatRepository: ChatRepository, private val context: Context) : ViewModel() {
+class ChatViewModel(
+    private val chatRepository: ChatRepository
+) : ViewModel() {
 
-    // Holds the current chatbot response
-    private val _chatBotResponse = MutableStateFlow("¡Hola! Soy tu asistente virtual, ¿en qué puedo ayudarte hoy?")
+    // Holds the chatbot's latest response
+    private val _chatBotResponse = MutableStateFlow("¡Hola! Soy tu asistente virtual.")
     val chatBotResponse: StateFlow<String> = _chatBotResponse
 
-    // Holds the loading state for chatbot responses
+    // Holds the loading state
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    // Sends a message to the chat bot and updates the state with the response
+    // Send message to the chatbot
     fun sendMessage(userMessage: String) {
         _isLoading.value = true
         viewModelScope.launch {
-            val authToken = getAuthToken()
+            val authToken = TokenManager.getToken()  // Get the token from TokenManager
 
-            // Check if the token exists
             if (authToken != null) {
+                Log.d("ChatViewModel", "Sending message with token: $authToken")
                 val result = chatRepository.getChatBotResponse(userMessage, authToken)
+
                 result.onSuccess { response ->
                     _chatBotResponse.value = response
                 }.onFailure { error ->
@@ -39,22 +41,5 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val cont
             }
             _isLoading.value = false
         }
-    }
-
-    // Fetches the auth token from EncryptedSharedPreferences
-    private fun getAuthToken(): String? {
-        val masterKey = MasterKey.Builder(context)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-
-        val sharedPreferences = EncryptedSharedPreferences.create(
-            context,
-            "secure_prefs",
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
-
-        return sharedPreferences.getString("auth_token", null)
     }
 }

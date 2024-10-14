@@ -2,6 +2,6 @@
 package com.example.proyectobufetec.data.usuario
 
 data class TokenResponse(
-    val message: String,
+    val message: String?,
     val token: String
 )

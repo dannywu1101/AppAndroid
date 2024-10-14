@@ -10,46 +10,35 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.proyectobufetec.components.NavigationDrawer
-import com.example.proyectobufetec.screens.clientes.BibliotecaScreen
-import com.example.proyectobufetec.screens.clientes.ChatBotScreen
-import com.example.proyectobufetec.screens.HomeScreen
-import com.example.proyectobufetec.screens.LoginScreen
-import com.example.proyectobufetec.screens.RegisterScreen
-import com.example.proyectobufetec.screens.abogado.AbogadoProfileScreen
-import com.example.proyectobufetec.screens.abogado.InfoCasosLegalesScreen
-import com.example.proyectobufetec.screens.abogado.LegalCasesScreen
-import com.example.proyectobufetec.screens.clientes.BusquedaAbogadosScreen
-import com.example.proyectobufetec.screens.clientes.EstadoCasoScreen
-import com.example.proyectobufetec.screens.clientes.InfoAbogadosScreen
-import com.example.proyectobufetec.viewmodel.AbogadoViewModel
-import com.example.proyectobufetec.viewmodel.BibliotecaViewModel
-import com.example.proyectobufetec.viewmodel.UserViewModel
-import com.example.proyectobufetec.viewmodel.ChatViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyectobufetec.screens.*
+import com.example.proyectobufetec.screens.clientes.*
+import com.example.proyectobufetec.screens.abogado.*
+import com.example.proyectobufetec.viewmodel.*
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavHost(
+    navController: NavHostController,
     appViewModel: UserViewModel,
-    chatViewModel: ChatViewModel,  // Added ChatViewModel
+    chatViewModel: ChatViewModel,
     abogadoViewModel: AbogadoViewModel,
     bibliotecaViewModel: BibliotecaViewModel,
-    context: Context,  // Added context for login
-    padding: Modifier
+    casoViewModel: CasoViewModel,
+    context: Context,
+    padding: Modifier = Modifier
 ) {
-    val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Shared scaffold and drawer logic for each screen
+    // Reusable scaffold with navigation drawer logic
     @Composable
     fun ModalScaffold(contentTitle: String, content: @Composable () -> Unit) {
         ModalNavigationDrawer(
@@ -57,8 +46,15 @@ fun AppNavHost(
             drawerContent = {
                 ModalDrawerSheet {
                     NavigationDrawer(navController, appViewModel) { destination ->
-                        scope.launch { drawerState.close() }
-                        navController.navigate(destination)
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate(destination) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
+                        }
                     }
                 }
             }
@@ -68,26 +64,25 @@ fun AppNavHost(
                     TopAppBar(
                         title = { Text(contentTitle) },
                         navigationIcon = {
-                            IconButton(onClick = {
-                                scope.launch { drawerState.open() }
-                            }) {
+                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
                                 Icon(Icons.Default.Menu, contentDescription = "Menu")
                             }
                         }
                     )
                 },
-                content = { content() } // Simplified padding handling
+                content = { content() }
             )
         }
     }
 
-    // NavHost for handling all routes
+    // Define the navigation graph
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = "login",
+        modifier = padding
     ) {
         composable("login") {
-            LoginScreen(navController, appViewModel, context)  // Pass context for login
+            LoginScreen(navController, appViewModel, context)
         }
 
         composable("register") {
@@ -102,7 +97,7 @@ fun AppNavHost(
 
         composable("chatbot") {
             ModalScaffold(contentTitle = "ChatBot") {
-                ChatBotScreen(navController, chatViewModel)  // Use ChatViewModel here
+                ChatBotScreen(navController, chatViewModel)
             }
         }
 
@@ -120,7 +115,7 @@ fun AppNavHost(
 
         composable("casos legales") {
             ModalScaffold(contentTitle = "Casos Legales") {
-                LegalCasesScreen(navController, appViewModel)
+                LegalCasesScreen(navController, casoViewModel)
             }
         }
 
@@ -132,13 +127,12 @@ fun AppNavHost(
 
         composable("estado caso") {
             ModalScaffold(contentTitle = "Estado del Caso") {
-                EstadoCasoScreen(navController, appViewModel)
+                EstadoCasoScreen(navController, casoViewModel)
             }
         }
 
-        // Nueva ruta: InfoCasosLegalesScreen
         composable(
-            "info_casos_legales/{expediente}/{cliente}/{abogadoAsignado}/{estado}/{descripcion}",
+            route = "info_casos_legales/{expediente}/{cliente}/{abogadoAsignado}/{estado}/{descripcion}",
             arguments = listOf(
                 navArgument("expediente") { type = NavType.StringType },
                 navArgument("cliente") { type = NavType.StringType },
@@ -153,9 +147,8 @@ fun AppNavHost(
             )
         }
 
-        // Nueva ruta: InfoAbogadosScreen
         composable(
-            "info_abogado/{nombre}/{especialidad}",
+            route = "info_abogado/{nombre}/{especialidad}",
             arguments = listOf(
                 navArgument("nombre") { type = NavType.StringType },
                 navArgument("especialidad") { type = NavType.StringType }

@@ -1,16 +1,9 @@
-// com.example.proyectobufetec/viewmodel/UserViewModel.kt
-
 package com.example.proyectobufetec.viewmodel
 
-import android.content.Context
-import android.content.SharedPreferences
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKeys
+import com.example.proyectobufetec.data.network.TokenManager
 import com.example.proyectobufetec.data.usuario.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,109 +11,85 @@ import kotlinx.coroutines.launch
 
 class UserViewModel(
     private val usuarioApiService: UsuarioApiService,
-    private val context: Context
+    private val tokenManager: TokenManager
 ) : ViewModel() {
 
-    // User credentials state
-    var email by mutableStateOf("")
-    var password by mutableStateOf("")
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email
 
-    // State management
-    private val _loginState = MutableStateFlow<LoginUserState>(LoginUserState.Initial)
-    val loginState: StateFlow<LoginUserState> = _loginState
+    private val _password = MutableStateFlow("")
+    val password: StateFlow<String> = _password
 
-    private val _registerState = MutableStateFlow<RegisterUserState>(RegisterUserState.Initial)
-    val registerState: StateFlow<RegisterUserState> = _registerState
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
+    val authState: StateFlow<AuthState> = _authState
 
-    private val _isUserLogged = MutableStateFlow(false)
-    val isUserLogged: StateFlow<Boolean> = _isUserLogged
-
-    // Helper function to create EncryptedSharedPreferences
-    private fun getEncryptedSharedPreferences(): SharedPreferences {
-        val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-        return EncryptedSharedPreferences.create(
-            "auth_prefs",
-            masterKeyAlias,
-            context,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+    init {
+        // Automatically check token validity on initialization
+        checkTokenOnLaunch()
     }
 
-    // Save token in EncryptedSharedPreferences
-    private fun saveAuthToken(token: String) {
-        val sharedPreferences = getEncryptedSharedPreferences()
-        sharedPreferences.edit().putString("auth_token", token).apply()
-    }
-
-    // Retrieve token from EncryptedSharedPreferences
-    fun getAuthToken(): String? {
-        val sharedPreferences = getEncryptedSharedPreferences()
-        return sharedPreferences.getString("auth_token", null)
-    }
-
-    // Login function with token handling
-    fun loginUser(user: LoginRequest) {
-        _loginState.value = LoginUserState.Loading
+    /**
+     * Checks if a valid token exists on launch and updates authState accordingly.
+     */
+    private fun checkTokenOnLaunch() {
         viewModelScope.launch {
-            try {
-                val response = usuarioApiService.login(user)
-                if (response.isSuccessful) {
-                    val tokenResponse = response.body()!!
-                    saveAuthToken(tokenResponse.token)  // Save token
-                    setUserLogged(true)
-                    _loginState.value = LoginUserState.Success(tokenResponse)
-                } else {
-                    _loginState.value = LoginUserState.Error("Login failed: ${response.message()}")
-                }
-            } catch (e: Exception) {
-                _loginState.value = LoginUserState.Error("Error in login: ${e.message}")
+            val token = tokenManager.getToken()
+            if (token != null && tokenManager.isTokenValid()) {
+                Log.d("UserViewModel", "Valid token found, setting authState to Success.")
+                _authState.value = AuthState.Success(TokenResponse("Usuario logged in",token))
+            } else {
+                Log.d("UserViewModel", "No valid token found, setting authState to Idle.")
+                _authState.value = AuthState.Idle
             }
         }
     }
 
-    // Register user and handle token saving
-    fun registerUser(user: RegisterRequest) {
-        _registerState.value = RegisterUserState.Loading
+    fun loginUser(user: LoginRequest) = handleAuthRequest {
+        usuarioApiService.login(user)
+    }
+
+    fun registerUser(user: RegisterRequest) = handleAuthRequest {
+        usuarioApiService.register(user)
+    }
+
+    private fun handleAuthRequest(request: suspend () -> retrofit2.Response<TokenResponse>) {
+        _authState.value = AuthState.Loading
         viewModelScope.launch {
             try {
-                val response = usuarioApiService.register(user)
+                val response = request()
                 if (response.isSuccessful) {
-                    val tokenResponse = response.body()!!
-                    saveAuthToken(tokenResponse.token)  // Save token
-                    _registerState.value = RegisterUserState.Success(tokenResponse)
-                } else {
-                    _registerState.value = RegisterUserState.Error("Registration failed: ${response.message()}")
-                }
-            } catch (e: Exception) {
-                _registerState.value = RegisterUserState.Error("Error during registration: ${e.message}")
-            }
-        }
-    }
-
-    // Set user logged state
-    fun setUserLogged(isLogged: Boolean) {
-        _isUserLogged.value = isLogged
-    }
-
-    // Verify the token and update user login status
-    fun verifyToken() {
-        val token = getAuthToken()
-        if (token != null) {
-            viewModelScope.launch {
-                try {
-                    val response = usuarioApiService.verifyToken("Bearer $token")
-                    if (response.isSuccessful) {
-                        setUserLogged(true)
-                    } else {
-                        setUserLogged(false)
+                    response.body()?.let {
+                        tokenManager.saveToken(it.token)
+                        _authState.value = AuthState.Success(it)
                     }
-                } catch (e: Exception) {
-                    setUserLogged(false)
+                } else {
+                    _authState.value = AuthState.Error(response.message())
                 }
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error(e.message ?: "Unknown Error")
             }
-        } else {
-            setUserLogged(false)
         }
     }
+
+    fun onEmailChange(newEmail: String) {
+        _email.value = newEmail
+    }
+
+    fun onPasswordChange(newPassword: String) {
+        _password.value = newPassword
+    }
+
+    // Clear email and password after successful login
+    fun clearCredentials() {
+        _email.value = ""
+        _password.value = ""
+    }
+}
+
+// Auth state management to streamline state handling
+sealed class AuthState {
+    object Idle : AuthState()
+    object Loading : AuthState()
+    data class Success(val response: TokenResponse) : AuthState()
+    data class Error(val message: String) : AuthState()
 }
