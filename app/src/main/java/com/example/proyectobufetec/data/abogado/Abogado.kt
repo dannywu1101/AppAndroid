@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/data/abogado/Abogado
+
 package com.example.proyectobufetec.abogado
 
 data class Abogado(

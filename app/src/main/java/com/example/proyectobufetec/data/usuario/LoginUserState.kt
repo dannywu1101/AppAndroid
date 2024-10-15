@@ -1,4 +1,4 @@
-// com.example.proyectobufetec.data.usuario.LoginUserState.kt
+// com.example.proyectobufetec/data/usuario/LoginUserState.kt
 
 package com.example.proyectobufetec.data.usuario
 

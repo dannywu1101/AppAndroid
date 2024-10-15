@@ -1,4 +1,5 @@
-// data/usuario/RegisterRequest.kt
+// com.example.proyectobufetec/data/usuario/RegisterRequest.kt
+
 package com.example.proyectobufetec.data.usuario
 
 data class RegisterRequest(

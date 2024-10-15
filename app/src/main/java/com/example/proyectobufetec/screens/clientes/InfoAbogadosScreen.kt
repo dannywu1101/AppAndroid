@@ -1,4 +1,5 @@
 // com.example.proyectobufetec/screens/clientes/InfoAbogadosScreen.kt
+
 package com.example.proyectobufetec.screens.clientes
 
 import androidx.compose.foundation.layout.*

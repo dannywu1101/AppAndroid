@@ -1,4 +1,4 @@
-// com.example.proyectobufetec.data.usuatrio.RegisterUserState.kt
+// com.example.proyectobufetec/data/usuatrio/RegisterUserState.kt
 
 package com.example.proyectobufetec.viewmodel
 

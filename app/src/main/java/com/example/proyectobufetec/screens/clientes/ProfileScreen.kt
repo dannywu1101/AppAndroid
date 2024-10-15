@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/screens/clientes/ProfileScreen.kt
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest

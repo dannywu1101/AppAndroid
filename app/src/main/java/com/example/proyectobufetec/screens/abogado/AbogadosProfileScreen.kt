@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/screens/abogado/AbogadoProfileScreen.kt
+
 package com.example.proyectobufetec.screens.abogado
 
 import android.graphics.BitmapFactory

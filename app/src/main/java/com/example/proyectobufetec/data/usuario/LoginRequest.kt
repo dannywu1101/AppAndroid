@@ -1,4 +1,5 @@
-// data/usuario/LoginRequest.kt
+// com.example.proyectobufetec/data/usuario/LoginRequest.kt
+
 package com.example.proyectobufetec.data.usuario
 
 data class LoginRequest(

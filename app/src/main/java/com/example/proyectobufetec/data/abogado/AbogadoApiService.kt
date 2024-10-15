@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/data/abogado/AbogadoApliService
+
 package com.example.proyectobufetec.data.abogado
 
 import retrofit2.Response

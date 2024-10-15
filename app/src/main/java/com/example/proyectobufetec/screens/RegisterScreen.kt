@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/screens/RegisterScreen.kt
+
 package com.example.proyectobufetec.screens
 
 import android.app.DatePickerDialog

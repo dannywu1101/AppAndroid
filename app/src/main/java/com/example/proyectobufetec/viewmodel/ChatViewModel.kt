@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/viewmodel/ChatViewModel
+
 package com.example.proyectobufetec.viewmodel
 
 import androidx.lifecycle.ViewModel

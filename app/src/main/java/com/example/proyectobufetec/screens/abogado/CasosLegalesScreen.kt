@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/screens/abogado/LegalCasesScreen.kt
+
 package com.example.proyectobufetec.screens.abogado
 
 import android.content.Intent

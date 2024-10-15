@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/screens/abogado/InfoCasosLegalesScreen
+
 package com.example.proyectobufetec.screens.abogado
 
 import androidx.compose.foundation.layout.*

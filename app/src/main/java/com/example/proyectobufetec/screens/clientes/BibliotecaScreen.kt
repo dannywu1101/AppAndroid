@@ -1,4 +1,4 @@
-// com.example.proyectobufetec.screens.clientes.BibliotecaScreen
+// com.example.proyectobufetec.screens/clientes/BibliotecaScreen.kt
 
 package com.example.proyectobufetec.screens.clientes
 

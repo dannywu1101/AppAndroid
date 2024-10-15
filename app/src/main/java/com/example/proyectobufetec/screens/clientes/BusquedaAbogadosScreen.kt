@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/screens/clientes/BusquedaAbogadosScreen.kt
+
 package com.example.proyectobufetec.screens.clientes
 
 import androidx.compose.foundation.background

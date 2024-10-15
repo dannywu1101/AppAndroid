@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/navigation/AppNavHost.kt
+
 package com.example.proyectobufetec.navigation
 
 import ProfileScreen

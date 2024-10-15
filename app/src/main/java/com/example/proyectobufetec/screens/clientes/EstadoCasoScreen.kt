@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/screens/clientes/EstadoCasoScreen.kt
+
 package com.example.proyectobufetec.screens.clientes
 
 import androidx.compose.foundation.background

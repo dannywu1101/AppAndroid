@@ -1,4 +1,5 @@
-// data/usuario/TokenResponse.kt
+// com.example.proyectobufetec/data/usuario/TokenResponse.kt
+
 package com.example.proyectobufetec.data.usuario
 
 data class TokenResponse(

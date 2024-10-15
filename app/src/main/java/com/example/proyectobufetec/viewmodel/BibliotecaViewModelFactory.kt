@@ -1,4 +1,4 @@
-// com.example.proyectobufetec.viewmodel.BibliotecaViewModelFactory.kt
+// com.example.proyectobufetec/viewmodel/BibliotecaViewModelFactory
 
 package com.example.proyectobufetec.viewmodel
 

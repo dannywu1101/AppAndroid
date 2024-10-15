@@ -1,4 +1,4 @@
-// com.example.proyectobufetec.data.biblioteca.BibliotecaResponse
+// com.example.proyectobufetec/data/biblioteca/BibliotecaResponse
 
 package com.example.proyectobufetec.data.biblioteca
 

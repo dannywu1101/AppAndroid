@@ -1,3 +1,5 @@
+// com.example.proyectobufetec/MainActivity.kt
+
 package com.example.proyectobufetec
 
 import android.os.Bundle

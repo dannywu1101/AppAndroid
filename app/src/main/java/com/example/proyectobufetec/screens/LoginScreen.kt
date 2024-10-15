@@ -1,4 +1,4 @@
-// com.example.proyectobufetec.screens.LoginScreen.kt
+// com.example.proyectobufetec/screens/LoginScreen.kt
 
 package com.example.proyectobufetec.screens
 
