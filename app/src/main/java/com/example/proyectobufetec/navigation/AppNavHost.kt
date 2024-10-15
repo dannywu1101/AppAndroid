@@ -91,12 +91,6 @@ fun AppNavHost(
             RegisterScreen(navController, appViewModel)
         }
 
-        composable("home") {
-            ModalScaffold(contentTitle = "Pantalla Principal") {
-                HomeScreen(navController, appViewModel)
-            }
-        }
-
         composable("chatbot") {
             ModalScaffold(contentTitle = "ChatBot") {
                 ChatBotScreen(navController, chatViewModel)
@@ -167,5 +161,12 @@ fun AppNavHost(
                 AbogadoProfileScreen(navController, appViewModel)
             }
         }
+
+        composable("home") {
+            ModalScaffold(contentTitle = "Pantalla de Inicio") {
+                HomeScreen(navController, appViewModel)
+            }
+        }
+
     }
 }

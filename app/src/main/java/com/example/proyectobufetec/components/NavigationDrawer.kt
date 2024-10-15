@@ -60,7 +60,7 @@ private fun GuestNavigationItems(
         onClick = { onNavigate("chatbot") }
     )
     NavigationDrawerItem(
-        label = { Text("Sign In") },
+        label = { Text("Iniciar Sesión") },
         selected = currentDestination == "login",
         onClick = { onNavigate("login") }
     )
@@ -100,7 +100,7 @@ private fun UserNavigationItems(
     )
     // Logout option
     NavigationDrawerItem(
-        label = { Text("Log Out") },
+        label = { Text("Cerrar Sesión") },
         selected = false,
         onClick = { onLogout() }
     )
@@ -130,7 +130,7 @@ private fun LawyerNavigationItems(
     )
     // Logout option
     NavigationDrawerItem(
-        label = { Text("Log Out") },
+        label = { Text("Cerrar Sesión") },
         selected = false,
         onClick = { onLogout() }
     )

@@ -60,6 +60,9 @@ fun ChatBotScreen(
             .background(Color(0xFFF9F9F9))
             .padding(16.dp)
     ) {
+
+        Spacer(modifier = Modifier.height(80.dp))
+
         // Display chat messages
         Box(
             modifier = Modifier
