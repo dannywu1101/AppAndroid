@@ -25,24 +25,40 @@ class UserViewModel(
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState
 
+    // New: Manage user type (Guest, User, Lawyer)
+    private val _userType = MutableStateFlow<UserType>(UserType.Guest)
+    val userType: StateFlow<UserType> = _userType
+
     init {
-        // Automatically check token validity on initialization
         checkTokenOnLaunch()
     }
 
     /**
-     * Checks if a valid token exists on launch and updates authState accordingly.
+     * Checks if a valid token exists on launch and updates authState and userType accordingly.
      */
     private fun checkTokenOnLaunch() {
         viewModelScope.launch {
             val token = tokenManager.getToken()
             if (token != null && tokenManager.isTokenValid()) {
                 Log.d("UserViewModel", "Valid token found, setting authState to Success.")
-                _authState.value = AuthState.Success(TokenResponse("Usuario logged in",token))
+                val userRole = getUserRoleFromToken(token) // Determine user role
+                _userType.value = userRole
+                _authState.value = AuthState.Success(TokenResponse("Usuario logged in", token))
             } else {
                 Log.d("UserViewModel", "No valid token found, setting authState to Idle.")
                 _authState.value = AuthState.Idle
+                _userType.value = UserType.Guest // Default to Guest when no valid token
             }
+        }
+    }
+
+    // New: Determine user role based on token or other logic
+    private fun getUserRoleFromToken(token: String): UserType {
+        // Placeholder: Replace this with actual logic to determine user role
+        return when {
+            token.contains("lawyer") -> UserType.Lawyer
+            token.contains("user") -> UserType.User
+            else -> UserType.Guest
         }
     }
 
@@ -62,6 +78,8 @@ class UserViewModel(
                 if (response.isSuccessful) {
                     response.body()?.let {
                         tokenManager.saveToken(it.token)
+                        val userRole = getUserRoleFromToken(it.token) // Set user role
+                        _userType.value = userRole
                         _authState.value = AuthState.Success(it)
                     }
                 } else {
@@ -81,11 +99,15 @@ class UserViewModel(
         _password.value = newPassword
     }
 
-    // Clear email and password after successful login
     fun clearCredentials() {
         _email.value = ""
         _password.value = ""
     }
+}
+
+// Enum class for user roles
+enum class UserType {
+    Guest, User, Lawyer
 }
 
 // Auth state management to streamline state handling

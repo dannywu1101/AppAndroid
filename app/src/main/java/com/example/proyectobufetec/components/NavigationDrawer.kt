@@ -12,13 +12,20 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.proyectobufetec.viewmodel.AuthState
 import com.example.proyectobufetec.viewmodel.UserViewModel
 
+// Add UserType Enum to differentiate roles.
+enum class UserType {
+    Guest, User, Lawyer
+}
+
+// Modify UserViewModel to expose user type
 @Composable
 fun NavigationDrawer(
     navController: NavController,
     appViewModel: UserViewModel,
     onNavigate: (String) -> Unit
 ) {
-    val authState by appViewModel.authState.collectAsState() // Observe the new AuthState
+    val authState by appViewModel.authState.collectAsState()
+    val userType by appViewModel.userType.collectAsState(initial = UserType.Guest)
 
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry.value?.destination?.route
@@ -26,47 +33,46 @@ fun NavigationDrawer(
     ModalDrawerSheet(modifier = Modifier) {
         when (authState) {
             is AuthState.Success -> {
-                // Display routes available only to logged-in users
-                LoggedInNavigationItems(currentDestination, onNavigate)
+                // Display based on user type (User/Lawyer)
+                when (userType) {
+                    UserType.User -> UserNavigationItems(currentDestination, onNavigate)
+                    UserType.Lawyer -> LawyerNavigationItems(currentDestination, onNavigate)
+                    else -> {}
+                }
             }
             else -> {
-                // Show a message or limited items if the user is not logged in
+                // Guest Navigation Items
                 GuestNavigationItems(currentDestination, onNavigate)
             }
         }
-
-        // Display shared navigation items available to all users
-        SharedNavigationItems(currentDestination, onNavigate)
     }
 }
 
-@Composable
-private fun LoggedInNavigationItems(
-    currentDestination: String?,
-    onNavigate: (String) -> Unit
-) {
-    NavigationDrawerItem(
-        label = { Text("Ruta 1") },
-        selected = currentDestination == "route1",
-        onClick = { onNavigate("route1") }
-    )
-    NavigationDrawerItem(
-        label = { Text("Ruta 2") },
-        selected = currentDestination == "route2",
-        onClick = { onNavigate("route2") }
-    )
-}
-
+// Separate functions for each role's items
 @Composable
 private fun GuestNavigationItems(
     currentDestination: String?,
     onNavigate: (String) -> Unit
 ) {
-    Text("Inicie sesión para acceder a más funciones.")
+    NavigationDrawerItem(
+        label = { Text("Biblioteca") },
+        selected = currentDestination == "biblioteca",
+        onClick = { onNavigate("biblioteca") }
+    )
+    NavigationDrawerItem(
+        label = { Text("ChatBot") },
+        selected = currentDestination == "chatbot",
+        onClick = { onNavigate("chatbot") }
+    )
+    NavigationDrawerItem(
+        label = { Text("Sign In") },
+        selected = currentDestination == "signin",
+        onClick = { onNavigate("signin") }
+    )
 }
 
 @Composable
-private fun SharedNavigationItems(
+private fun UserNavigationItems(
     currentDestination: String?,
     onNavigate: (String) -> Unit
 ) {
@@ -76,19 +82,9 @@ private fun SharedNavigationItems(
         onClick = { onNavigate("chatbot") }
     )
     NavigationDrawerItem(
-        label = { Text("Casos Legales") },
-        selected = currentDestination == "casos legales",
-        onClick = { onNavigate("casos legales") }
-    )
-    NavigationDrawerItem(
         label = { Text("Biblioteca") },
         selected = currentDestination == "biblioteca",
         onClick = { onNavigate("biblioteca") }
-    )
-    NavigationDrawerItem(
-        label = { Text("Perfil") },
-        selected = currentDestination == "profile",
-        onClick = { onNavigate("profile") }
     )
     NavigationDrawerItem(
         label = { Text("Búsqueda Abogados") },
@@ -101,8 +97,30 @@ private fun SharedNavigationItems(
         onClick = { onNavigate("estado caso") }
     )
     NavigationDrawerItem(
+        label = { Text("Perfil") },
+        selected = currentDestination == "profile",
+        onClick = { onNavigate("profile") }
+    )
+}
+
+@Composable
+private fun LawyerNavigationItems(
+    currentDestination: String?,
+    onNavigate: (String) -> Unit
+) {
+    NavigationDrawerItem(
+        label = { Text("Casos Legales") },
+        selected = currentDestination == "casos legales",
+        onClick = { onNavigate("casos legales") }
+    )
+    NavigationDrawerItem(
         label = { Text("Perfil Abogados") },
         selected = currentDestination == "perfil abogados",
         onClick = { onNavigate("perfil abogados") }
+    )
+    NavigationDrawerItem(
+        label = { Text("Editar Caso") },
+        selected = currentDestination == "editar caso",
+        onClick = { onNavigate("editar caso") }
     )
 }
