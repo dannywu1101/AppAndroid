@@ -4,6 +4,7 @@ package com.example.proyectobufetec.data.network
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Base64
 import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
@@ -11,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.json.JSONObject
 
 object TokenManager {
 
@@ -32,19 +34,14 @@ object TokenManager {
     }
 
     fun saveToken(token: String) {
-        Log.d("TokenManager", "Saving token: $token")
         sharedPreferences.edit().putString("auth_token", token).apply()
-        RetrofitInstance.rebuildRetrofit() // Ensure Retrofit uses the new token
     }
 
     fun getToken(): String? {
-        val token = sharedPreferences.getString("auth_token", null)
-        Log.d("TokenManager", "Retrieved token: $token")
-        return token
+        return sharedPreferences.getString("auth_token", null)
     }
 
     fun clearToken() {
-        Log.d("TokenManager", "Clearing token")
         sharedPreferences.edit().remove("auth_token").apply()
     }
 
@@ -56,22 +53,18 @@ object TokenManager {
                     .url("https://bufetec-postgres.onrender.com/api/usuarios/verify")
                     .addHeader("Authorization", "Bearer $token")
                     .build()
-
-                client.newCall(request).execute().use { response ->
-                    if (response.isSuccessful) {
-                        Log.d("TokenManager", "Token is valid.")
-                        true
-                    } else {
-                        Log.w("TokenManager", "Invalid token.")
-                        clearToken()
-                        false
-                    }
-                }
+                client.newCall(request).execute().use { it.isSuccessful }
             } catch (e: Exception) {
-                Log.e("TokenManager", "Token validation error: ${e.message}")
                 clearToken()
                 false
             }
         }
+    }
+
+    fun extractRoleFromToken(token: String): String {
+        val parts = token.split(".")
+        if (parts.size < 2) return "Guest"
+        val payload = String(Base64.decode(parts[1], Base64.URL_SAFE))
+        return JSONObject(payload).getString("role")
     }
 }

@@ -11,13 +11,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.proyectobufetec.viewmodel.AuthState
 import com.example.proyectobufetec.viewmodel.UserViewModel
+import com.example.proyectobufetec.viewmodel.UserType
 
-// Add UserType Enum to differentiate roles.
 enum class UserType {
-    Guest, User, Lawyer
+    Admin, Abogado, Cliente, Usuario, Guest
 }
 
-// Modify UserViewModel to expose user type
 @Composable
 fun NavigationDrawer(
     navController: NavController,
@@ -33,22 +32,18 @@ fun NavigationDrawer(
     ModalDrawerSheet(modifier = Modifier) {
         when (authState) {
             is AuthState.Success -> {
-                // Display based on user type (User/Lawyer)
                 when (userType) {
-                    UserType.User -> UserNavigationItems(currentDestination, onNavigate)
-                    UserType.Lawyer -> LawyerNavigationItems(currentDestination, onNavigate)
-                    else -> {}
+                    UserType.Admin, UserType.Abogado -> LawyerNavigationItems(currentDestination, onNavigate, appViewModel::logoutUser)
+                    UserType.Cliente, UserType.Usuario -> UserNavigationItems(currentDestination, onNavigate, appViewModel::logoutUser)
+                    else -> GuestNavigationItems(currentDestination, onNavigate)
                 }
             }
-            else -> {
-                // Guest Navigation Items
-                GuestNavigationItems(currentDestination, onNavigate)
-            }
+            else -> GuestNavigationItems(currentDestination, onNavigate) // Guest users
         }
     }
 }
 
-// Separate functions for each role's items
+// Guest Navigation Items (No Logout option for guests)
 @Composable
 private fun GuestNavigationItems(
     currentDestination: String?,
@@ -66,15 +61,17 @@ private fun GuestNavigationItems(
     )
     NavigationDrawerItem(
         label = { Text("Sign In") },
-        selected = currentDestination == "signin",
-        onClick = { onNavigate("signin") }
+        selected = currentDestination == "login",
+        onClick = { onNavigate("login") }
     )
 }
 
+// User and Cliente Navigation Items (With Logout option)
 @Composable
 private fun UserNavigationItems(
     currentDestination: String?,
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit,
+    onLogout: () -> Unit
 ) {
     NavigationDrawerItem(
         label = { Text("ChatBot") },
@@ -101,12 +98,20 @@ private fun UserNavigationItems(
         selected = currentDestination == "profile",
         onClick = { onNavigate("profile") }
     )
+    // Logout option
+    NavigationDrawerItem(
+        label = { Text("Log Out") },
+        selected = false,
+        onClick = { onLogout() }
+    )
 }
 
+// Lawyer Navigation Items (With Logout option)
 @Composable
 private fun LawyerNavigationItems(
     currentDestination: String?,
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit,
+    onLogout: () -> Unit
 ) {
     NavigationDrawerItem(
         label = { Text("Casos Legales") },
@@ -123,4 +128,11 @@ private fun LawyerNavigationItems(
         selected = currentDestination == "editar caso",
         onClick = { onNavigate("editar caso") }
     )
+    // Logout option
+    NavigationDrawerItem(
+        label = { Text("Log Out") },
+        selected = false,
+        onClick = { onLogout() }
+    )
 }
+
