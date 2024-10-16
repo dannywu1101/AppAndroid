@@ -168,5 +168,12 @@ fun AppNavHost(
             }
         }
 
+        composable("crear_caso") {
+            ModalScaffold(contentTitle = "Pedir Caso") {
+                CrearCasoScreen(navController)
+            }
+        }
+
+
     }
 }

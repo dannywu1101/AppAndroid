@@ -54,16 +54,19 @@ private fun GuestNavigationItems(
         selected = currentDestination == "biblioteca",
         onClick = { onNavigate("biblioteca") }
     )
+
     NavigationDrawerItem(
         label = { Text("ChatBot") },
         selected = currentDestination == "chatbot",
         onClick = { onNavigate("chatbot") }
     )
+
     NavigationDrawerItem(
         label = { Text("Iniciar Sesión") },
         selected = currentDestination == "login",
         onClick = { onNavigate("login") }
     )
+
 }
 
 // User and Cliente Navigation Items (With conditional "Estado del Caso")
@@ -79,16 +82,26 @@ private fun UserNavigationItems(
         selected = currentDestination == "chatbot",
         onClick = { onNavigate("chatbot") }
     )
+
     NavigationDrawerItem(
         label = { Text("Biblioteca") },
         selected = currentDestination == "biblioteca",
         onClick = { onNavigate("biblioteca") }
     )
+
     NavigationDrawerItem(
         label = { Text("Búsqueda Abogados") },
         selected = currentDestination == "busqueda abogados",
         onClick = { onNavigate("busqueda abogados") }
     )
+
+    if (userType == UserType.Cliente || userType == UserType.Usuario) {
+        NavigationDrawerItem(
+            label = { Text("Pedir Caso") },
+            selected = currentDestination == "crear_caso",
+            onClick = { onNavigate("crear_caso") }
+        )
+    }
 
     // Only show "Estado del Caso" if user is a Cliente
     if (userType == UserType.Cliente) {
@@ -99,11 +112,13 @@ private fun UserNavigationItems(
         )
     }
 
+    /*
     NavigationDrawerItem(
         label = { Text("Perfil") },
         selected = currentDestination == "profile",
         onClick = { onNavigate("profile") }
     )
+    */
 
     // Logout option
     NavigationDrawerItem(
@@ -111,6 +126,7 @@ private fun UserNavigationItems(
         selected = false,
         onClick = { onLogout() }
     )
+
 }
 
 // Lawyer Navigation Items (With Logout option)
@@ -121,20 +137,33 @@ private fun LawyerNavigationItems(
     onLogout: () -> Unit
 ) {
     NavigationDrawerItem(
+        label = { Text("ChatBot") },
+        selected = currentDestination == "chatbot",
+        onClick = { onNavigate("chatbot") }
+    )
+
+    NavigationDrawerItem(
         label = { Text("Casos Legales") },
         selected = currentDestination == "casos legales",
         onClick = { onNavigate("casos legales") }
     )
+
+    /*
     NavigationDrawerItem(
         label = { Text("Perfil Abogados") },
         selected = currentDestination == "perfil abogados",
         onClick = { onNavigate("perfil abogados") }
     )
+    */
+
+    /*
     NavigationDrawerItem(
         label = { Text("Editar Caso") },
         selected = currentDestination == "editar caso",
         onClick = { onNavigate("editar caso") }
     )
+     */
+
     // Logout option
     NavigationDrawerItem(
         label = { Text("Cerrar Sesión") },
