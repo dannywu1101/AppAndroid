@@ -49,11 +49,12 @@ fun LegalCasesScreen(
             .padding(16.dp)
     ) {
         Column {
+            Spacer(modifier = Modifier.height(80.dp))
             // Search bar
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                label = { Text("Buscar casos") },
+                label = { Text("Buscar por folio") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp)
