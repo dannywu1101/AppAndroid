@@ -7,6 +7,8 @@ import android.widget.DatePicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -82,6 +84,17 @@ fun RegisterScreen(navController: NavController, appViewModel: UserViewModel) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center
         ) {
+            // Back button aligned to start
+            Button(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.align(Alignment.Start)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBackIosNew,
+                    contentDescription = "Regresar",
+                    tint = Color.White
+                )
+            }
             Text(
                 text = "Registro",
                 style = MaterialTheme.typography.headlineMedium,
