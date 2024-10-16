@@ -5,6 +5,7 @@ package com.example.proyectobufetec.data.network
 import android.content.Context
 import android.util.Log
 import com.example.proyectobufetec.data.abogado.AbogadoApiService
+import com.example.proyectobufetec.data.api.PeticionCasoApiService
 import com.example.proyectobufetec.data.biblioteca.BibliotecaApiService
 import com.example.proyectobufetec.data.caso.CasoApiService
 import com.example.proyectobufetec.data.usuario.UsuarioApiService
@@ -55,4 +56,5 @@ object RetrofitInstance {
     fun getAbogadoApi(): AbogadoApiService = getRetrofit().create(AbogadoApiService::class.java)
     fun getBibliotecaApi(): BibliotecaApiService = getRetrofit().create(BibliotecaApiService::class.java)
     fun getCasoApi(): CasoApiService = getRetrofit().create(CasoApiService::class.java)
+    fun getPeticionCasoApi(): PeticionCasoApiService = getRetrofit().create(PeticionCasoApiService::class.java)
 }

@@ -22,12 +22,21 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavController
+import com.example.proyectobufetec.data.repository.PeticionCasoRepository
+import com.example.proyectobufetec.data.network.RetrofitInstance
+import kotlinx.coroutines.launch
 
 @Composable
 fun CrearCasoScreen(navController: NavController) {
-    // Manage the state of the input fields
+    // Initialize the repository
+    val repository = PeticionCasoRepository(RetrofitInstance.getPeticionCasoApi())
+    val scope = rememberCoroutineScope()
+
+    // Manage the state of the input fields and UI feedback
     var direccion by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -59,7 +68,7 @@ fun CrearCasoScreen(navController: NavController) {
             height = 120.dp // Taller field for case description
         )
 
-        // Enhanced Warning Message
+        // Warning Message
         WarningMessage(
             message = "Incluye información acerca de tus ingresos mensuales, el caso, y número de WhatsApp"
         )
@@ -67,16 +76,44 @@ fun CrearCasoScreen(navController: NavController) {
         // Submit Button
         Button(
             onClick = {
-                println("Dirección: $direccion")
-                println("Descripción: $descripcion")
+                if (descripcion.isNotBlank()) {
+                    scope.launch {
+                        isLoading = true
+                        val combinedText = "$direccion - $descripcion"
+                        val response = repository.createPeticionCaso(combinedText)
+
+                        if (response.isSuccessful) {
+                            message = "Petición enviada con éxito."
+                            navController.navigate("home") {
+                                popUpTo("crearCaso") { inclusive = true }
+                            }
+                        } else {
+                            message = "Error al enviar la petición. Inténtalo de nuevo."
+                        }
+                        isLoading = false
+                    }
+                } else {
+                    message = "Por favor, ingresa la descripción del caso."
+                }
             },
             modifier = Modifier
                 .padding(vertical = 16.dp)
-                .fillMaxWidth(0.8f) // Button width is 80% of the screen width
+                .fillMaxWidth(0.8f)
                 .height(48.dp),
-            shape = RoundedCornerShape(24.dp)
+            shape = RoundedCornerShape(24.dp),
+            enabled = !isLoading // Disable the button while loading
         ) {
-            Text(text = "Enviar", fontSize = 16.sp)
+            Text(text = if (isLoading) "Enviando..." else "Enviar", fontSize = 16.sp)
+        }
+
+        // Display any feedback message
+        if (message.isNotBlank()) {
+            Text(
+                text = message,
+                color = Color.Red,
+                modifier = Modifier.padding(top = 8.dp),
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
@@ -106,10 +143,10 @@ fun CustomMinimalTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(height)
-                .clip(RoundedCornerShape(12.dp)) // Rounded corners
-                .background(Color(0xFFE0E0E0)) // Slightly darker gray background
-                .border(1.dp, Color(0xFFBBBBBB), RoundedCornerShape(12.dp)) // Subtle border
-                .padding(12.dp) // Padding for inner text
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xFFE0E0E0))
+                .border(1.dp, Color(0xFFBBBBBB), RoundedCornerShape(12.dp))
+                .padding(12.dp)
         )
     }
 }
@@ -120,13 +157,13 @@ fun WarningMessage(message: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 16.dp)
-            .background(Color(0xFFFFF3CD), shape = RoundedCornerShape(8.dp)) // Light yellow background
-            .border(1.dp, Color(0xFFFFD966), shape = RoundedCornerShape(8.dp)) // Yellow border
-            .padding(12.dp) // Inner padding
+            .background(Color(0xFFFFF3CD), shape = RoundedCornerShape(8.dp))
+            .border(1.dp, Color(0xFFFFD966), shape = RoundedCornerShape(8.dp))
+            .padding(12.dp)
     ) {
         Text(
             text = message,
-            color = Color(0xFF856404), // Dark yellow text color
+            color = Color(0xFF856404),
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center
