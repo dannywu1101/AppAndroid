@@ -29,19 +29,28 @@ fun NavigationDrawer(
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry.value?.destination?.route
 
+    // Logout and navigate to the login screen
+    val onLogoutAndNavigate = {
+        appViewModel.logoutUser()  // Logout the user
+        navController.navigate("login") {
+            popUpTo("login") { inclusive = true }  // Clear the backstack to avoid returning to previous screens
+        }
+    }
+
     ModalDrawerSheet(modifier = Modifier) {
         when (authState) {
             is AuthState.Success -> {
                 when (userType) {
-                    UserType.Admin, UserType.Abogado -> LawyerNavigationItems(currentDestination, onNavigate, appViewModel::logoutUser)
-                    UserType.Cliente, UserType.Usuario -> UserNavigationItems(currentDestination, onNavigate, userType, appViewModel::logoutUser)
+                    UserType.Admin, UserType.Abogado -> LawyerNavigationItems(currentDestination, onNavigate, onLogoutAndNavigate)
+                    UserType.Cliente, UserType.Usuario -> UserNavigationItems(currentDestination, onNavigate, userType, onLogoutAndNavigate)
                     else -> GuestNavigationItems(currentDestination, onNavigate)
                 }
             }
-            else -> GuestNavigationItems(currentDestination, onNavigate) // Guest users
+            else -> GuestNavigationItems(currentDestination, onNavigate)
         }
     }
 }
+
 
 // Guest Navigation Items (No Logout option for guests)
 @Composable
