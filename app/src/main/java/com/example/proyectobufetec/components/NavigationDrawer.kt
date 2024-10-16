@@ -34,7 +34,7 @@ fun NavigationDrawer(
             is AuthState.Success -> {
                 when (userType) {
                     UserType.Admin, UserType.Abogado -> LawyerNavigationItems(currentDestination, onNavigate, appViewModel::logoutUser)
-                    UserType.Cliente, UserType.Usuario -> UserNavigationItems(currentDestination, onNavigate, appViewModel::logoutUser)
+                    UserType.Cliente, UserType.Usuario -> UserNavigationItems(currentDestination, onNavigate, userType, appViewModel::logoutUser)
                     else -> GuestNavigationItems(currentDestination, onNavigate)
                 }
             }
@@ -66,11 +66,12 @@ private fun GuestNavigationItems(
     )
 }
 
-// User and Cliente Navigation Items (With Logout option)
+// User and Cliente Navigation Items (With conditional "Estado del Caso")
 @Composable
 private fun UserNavigationItems(
     currentDestination: String?,
     onNavigate: (String) -> Unit,
+    userType: UserType,  // Receive the userType as parameter
     onLogout: () -> Unit
 ) {
     NavigationDrawerItem(
@@ -88,16 +89,22 @@ private fun UserNavigationItems(
         selected = currentDestination == "busqueda abogados",
         onClick = { onNavigate("busqueda abogados") }
     )
-    NavigationDrawerItem(
-        label = { Text("Estado del Caso") },
-        selected = currentDestination == "estado caso",
-        onClick = { onNavigate("estado caso") }
-    )
+
+    // Only show "Estado del Caso" if user is a Cliente
+    if (userType == UserType.Cliente) {
+        NavigationDrawerItem(
+            label = { Text("Estado del Caso") },
+            selected = currentDestination == "estado caso",
+            onClick = { onNavigate("estado caso") }
+        )
+    }
+
     NavigationDrawerItem(
         label = { Text("Perfil") },
         selected = currentDestination == "profile",
         onClick = { onNavigate("profile") }
     )
+
     // Logout option
     NavigationDrawerItem(
         label = { Text("Cerrar Sesión") },
