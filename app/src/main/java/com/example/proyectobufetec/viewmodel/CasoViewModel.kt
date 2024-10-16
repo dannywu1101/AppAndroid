@@ -64,7 +64,10 @@ class CasoViewModel(private val casoRepository: CasoRepository) : ViewModel() {
         }
     }
 
-    // Fetch files for a specific case
+    fun fetchCasoByID(caseID: Int): CasoResponseAbogado? {
+        return abogadoCasos.value.find { it.id == caseID }
+    }
+
     fun fetchCasoFiles(casoId: Int) {
         _isLoading.value = true
         viewModelScope.launch {
@@ -78,4 +81,5 @@ class CasoViewModel(private val casoRepository: CasoRepository) : ViewModel() {
             _isLoading.value = false
         }
     }
+
 }

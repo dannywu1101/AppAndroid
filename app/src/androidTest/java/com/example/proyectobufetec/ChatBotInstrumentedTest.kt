@@ -1,5 +1,3 @@
-package com.example.proyectobufetec
-
 import android.content.Context
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -7,9 +5,10 @@ import androidx.navigation.NavController
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.proyectobufetec.screens.clientes.ChatBotScreen
 import com.example.proyectobufetec.viewmodel.UserViewModel
+import com.example.proyectobufetec.viewmodel.ChatViewModel
+import com.example.proyectobufetec.service.FakeUserService
 import org.junit.Rule
 import org.junit.Test
-import com.example.proyectobufetec.service.FakeUserService
 
 class ChatBotInstrumentedTest {
 
@@ -18,11 +17,23 @@ class ChatBotInstrumentedTest {
 
     @Test
     fun testChatBotInteraction() {
-        val fakeNavController = FakeNavController(InstrumentationRegistry.getInstrumentation().targetContext)
-        val fakeUserViewModel = UserViewModel(usuarioApiService = FakeUserService()) // Pass FakeUserService
+        // Set up fake dependencies
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val fakeNavController = FakeNavController(context)
+        val fakeUserViewModel = UserViewModel(FakeUserService())
+        val fakeChatViewModel = ChatViewModel() // Provide ChatViewModel
+        val fakeAppViewModel = AppViewModel() // Provide AppViewModel
+        val fakeTokenManager =
+            com.example.proyectobufetec.data.network.TokenManager(context) // Provide TokenManager
 
+        // Set content with all required parameters
         composeTestRule.setContent {
-            ChatBotScreen(navController = fakeNavController, appViewModel = fakeUserViewModel)
+            ChatBotScreen(
+                navController = fakeNavController,
+                appViewModel = fakeAppViewModel,
+                chatViewModel = fakeChatViewModel,
+                tokenManager = fakeTokenManager
+            )
         }
 
         // Verify if initial chatbot message exists

@@ -64,8 +64,7 @@ fun LegalCasesScreen(
             when {
                 isLoading -> {
                     Box(
-                        modifier = Modifier
-                            .fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()
@@ -102,8 +101,7 @@ fun LegalCasesScreen(
                                     expediente = legalCase.numero_expediente,
                                     nombre = legalCase.clienteName,
                                     casoId = legalCase.id,
-                                    casoViewModel = casoViewModel,
-                                    context = LocalContext.current
+                                    navController = navController
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
                             }
@@ -120,20 +118,8 @@ fun LegalCaseItem(
     expediente: String,
     nombre: String,
     casoId: Int,
-    casoViewModel: CasoViewModel,
-    context: Context
+    navController: NavController
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
-    val casoFiles by casoViewModel.casoFiles.collectAsState()
-    val isLoading by casoViewModel.isLoading.collectAsState()
-    val errorMessage by casoViewModel.errorMessage.collectAsState()
-
-    LaunchedEffect(isExpanded) {
-        if (isExpanded && casoFiles.isEmpty() && !isLoading) {
-            casoViewModel.fetchCasoFiles(casoId)
-        }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -141,7 +127,9 @@ fun LegalCaseItem(
             .shadow(8.dp, RoundedCornerShape(8.dp))
             .background(TecBlue, RoundedCornerShape(8.dp))
             .padding(16.dp)
-            .clickable { isExpanded = !isExpanded }
+            .clickable {
+                navController.navigate("info_casos_legales/$casoId")
+            }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -162,74 +150,5 @@ fun LegalCaseItem(
                 modifier = Modifier.weight(2f)
             )
         }
-
-        if (isExpanded) {
-            Spacer(modifier = Modifier.height(8.dp))
-
-            when {
-                isLoading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-                }
-                errorMessage != null -> {
-                    Text(
-                        text = errorMessage ?: "Unknown error",
-                        color = White,
-                        textAlign = TextAlign.Center
-                    )
-                }
-                casoFiles.isEmpty() -> {
-                    Text(
-                        text = "No files available for this case.",
-                        color = White,
-                        textAlign = TextAlign.Center
-                    )
-                }
-                else -> {
-                    LazyColumn {
-                        items(casoFiles) { file ->
-                            CasoFileItem(
-                                titulo = file.titulo,
-                                descripcion = file.descripcion,
-                                link = file.presignedUrl,
-                                context = context
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun CasoFileItem(titulo: String, descripcion: String, link: String, context: Context) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .shadow(8.dp, RoundedCornerShape(8.dp))
-            .background(Color.White, RoundedCornerShape(8.dp))
-            .padding(16.dp)
-    ) {
-        Text(
-            text = titulo,
-            color = TecBlue,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            textDecoration = TextDecoration.Underline,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
-                    context.startActivity(intent)
-                }
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = descripcion,
-            fontSize = 14.sp,
-            color = Color.Gray
-        )
     }
 }

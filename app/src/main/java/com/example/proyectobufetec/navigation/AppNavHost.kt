@@ -128,20 +128,20 @@ fun AppNavHost(
         }
 
         composable(
-            route = "info_casos_legales/{expediente}/{cliente}/{abogadoAsignado}/{estado}/{descripcion}",
+            route = "info_casos_legales/{caseID}",
             arguments = listOf(
-                navArgument("expediente") { type = NavType.StringType },
-                navArgument("cliente") { type = NavType.StringType },
-                navArgument("abogadoAsignado") { type = NavType.StringType },
-                navArgument("estado") { type = NavType.StringType },
-                navArgument("descripcion") { type = NavType.StringType }
+                navArgument("caseID") { type = NavType.IntType }
             )
         ) { backStackEntry ->
+            val caseID = backStackEntry.arguments?.getInt("caseID") ?: -1
             InfoCasosLegalesScreen(
                 navController = navController,
-                navBackStackEntry = backStackEntry
+                casoViewModel = casoViewModel,
+                caseID = caseID
             )
         }
+
+
 
         composable(
             route = "info_abogado/{nombre}/{especialidad}",
