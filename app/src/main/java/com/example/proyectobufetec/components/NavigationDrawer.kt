@@ -152,6 +152,12 @@ private fun LawyerNavigationItems(
     )
 
     NavigationDrawerItem(
+        label = { Text("Biblioteca") },
+        selected = currentDestination == "biblioteca",
+        onClick = { onNavigate("biblioteca") }
+    )
+
+    NavigationDrawerItem(
         label = { Text("Casos Legales") },
         selected = currentDestination == "casos legales",
         onClick = { onNavigate("casos legales") }
